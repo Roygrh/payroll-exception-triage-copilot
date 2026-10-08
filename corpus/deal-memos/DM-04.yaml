@@ -1,0 +1,29 @@
+# Synthetic deal memo. All names and values are fictitious.
+# This memo is deliberately below the Schedule A scale for its occupation code (see data/rule-parameters.yaml) to exercise SCALE_RATE.
+id: DM-04
+employee:
+  id: EMP-1004
+  name: Marcus Thibodeaux
+production:
+  id: PROD-NH2
+  title: Northlight Harbor
+  season: 2
+  employer: Harborline Productions LLC
+occupation_code: "6305"
+occupation_title: PROPERTY ASSISTANT
+guild: Crew Guild, Local 11
+hourly_rate_usd: 34.00
+scale_relationship: below
+allowances: []
+department: Property
+hire_state: LA
+hire_city: New Orleans
+work_state: GA
+primary_work_city: Savannah
+start_date: 2026-02-23
+eligibility_verification:
+  status: completed
+  completed_on: 2026-02-24
+conditions:
+  - Rate entered from a prior-season offer; not re-compared with the current Schedule A at issue.
+notes: "Scenario role in the catalog: rate below scale (escalate). Hire state differs from work state."

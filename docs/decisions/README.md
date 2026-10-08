@@ -18,6 +18,7 @@ MADR style: context, decision, consequences, status. New decisions get the next 
 | [ADR-012](ADR-012-repository-as-system-of-record.md) | The repository is the durable system of record | Accepted | 2026-10-07 |
 | [ADR-013](ADR-013-checkpointer-and-frontend-tooling.md) | LangGraph checkpointer on PostgreSQL 16; React, TypeScript and Vite frontend | Accepted | 2026-10-07 |
 | [ADR-014](ADR-014-git-guard-hook.md) | PreToolUse hook blocks state-modifying git commands | Accepted | 2026-10-07 |
+| [ADR-015](ADR-015-python-tooling-uv.md) | Python dependency management with uv and the Iteration 1 dependency set | Accepted | 2026-10-07 |
 
 Template for new records:
 

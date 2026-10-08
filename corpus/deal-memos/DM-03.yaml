@@ -1,0 +1,27 @@
+# Synthetic deal memo. All names and values are fictitious.
+id: DM-03
+employee:
+  id: EMP-1003
+  name: Priya Castellanos
+production:
+  id: PROD-NH2
+  title: Northlight Harbor
+  season: 2
+  employer: Harborline Productions LLC
+occupation_code: "5210"
+occupation_title: PRODUCTION COORDINATOR
+guild: Crew Guild, Local 11
+hourly_rate_usd: 42.00
+scale_relationship: above
+allowances: []
+department: Production
+hire_state: GA
+hire_city: Savannah
+work_state: GA
+primary_work_city: Savannah
+start_date: 2026-01-05
+eligibility_verification:
+  status: completed
+  completed_on: 2026-01-06
+conditions: []
+notes: "Scenario role in the catalog: extended day (approve)."

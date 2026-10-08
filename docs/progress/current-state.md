@@ -3,42 +3,55 @@
 ## Handoff
 
 **Done**
-- Iteration 000 (2026-10-07): bootstrap. Rules (`AGENTS.md`, `CLAUDE.md`), tool guardrails (`.claude/settings.json`, git guard hook tested with 86 cases), five validator subagents, requirements (brief, domain model, customer workflow, demo script), architecture overview, ADR-001 to ADR-014, initial and current plan, evidence set, this file.
-- Vendor facts verified and recorded: tracing vendor regions and OpenTelemetry endpoint (ADR-004), checkpointer classes (ADR-013), coding assistant settings, hooks, imports and subagent format (ADR-014), eligibility deadline (sources S-05).
+- Iteration 000 (2026-10-07): bootstrap. Rules, tool guardrails (git guard hook), five validator subagents, requirements, architecture, ADR-001 to ADR-014, plan, evidence set.
+- Iteration 001 (2026-10-07 to 2026-10-08): domain and data. Rule parameters YAML with schema and semantic validation (ADR-007); Crew Guild Master Agreement 2026.1 rendered from a template (about 6,500 words, 97 anchored sections); six deal memos checked against Schedule A; scenario catalog and seeded generator (22 timecards: 18 scenarios plus 4 filler); expectation oracle and evaluation manifest (18 cases); ADR-015 (uv); hook test suite moved into the repository. 102 backend tests, 86 hook cases, all validators PASS at the gate (see `iterations/iteration-001.md`).
 
 **Next**
-- The author: run `git init`, confirm with `git status` that the private folder is not listed, make the first commit by hand.
-- Then step **P1.I1.S1** (project skeletons: `backend/pyproject.toml` with Python 3.12, FastAPI and pytest; `evals/` and `data/` layout; `.env.example`). Acceptance: `pytest` runs. Validator: test-engineer. Followed by P1.I1.S2 (rule parameters YAML with schema and tests).
+- The author: review and commit Iteration 1; decide OD-07 (penalty schedule 8.25 / 11.00 / 13.75 versus the brief's values, see iteration-001 deviation 1).
+- Then step **P1.I2.S1** (database and migrations: PostgreSQL 16 with pgvector in compose, data model outline, checkpointer setup). Validator: test-engineer. Before P1.I2.S2, do the carried-forward refactor: shared timecard model module and `policy.py` with a test per ADR-009 row, then build the MEAL_PERIOD rule on `calc.py` and test it against the committed manifest.
 
 **Open decisions**
-- OD-01: Queue priority formula (domain model, section 3, proposed). Owner: author. Decide in P1.I2.S7; record as a plan note or ADR if it changes the proposal.
+- OD-01: Queue priority formula (domain model, section 3, proposed). Owner: author. Decide in P1.I2.S7.
 - OD-02: Tier 2 thresholds and judge model (ADR-003). Owner: author. Decide in P1.I3.S3 after the baseline run.
-- OD-03: Where the hook harness lives in the repository (`deployment/` or a `tools/` folder). Owner: author. Decide in P1.I1.S1.
-- OD-04: LangGraph instrumentation library for OpenTelemetry (ADR-004 left it open). Owner: author. Decide in P1.I6.S1.
-- OD-05: Whether filler crew with clean weeks are added to the seed beyond the six deal memo employees. Owner: author. Decide in P1.I1.S5.
-- OD-06: Exact agreement wording for article 2 (jurisdiction) given that no Phase 1 rule depends on it. Owner: author. Decide in P1.I1.S3.
+- OD-04: LangGraph instrumentation library for OpenTelemetry (ADR-004). Owner: author. Decide in P1.I6.S1.
+- OD-06: Exact agreement wording for article 2 (jurisdiction). Owner: author. Current text (2.2, more favorable provision applies when hire state and work state differ) stands unless changed; no Phase 1 rule depends on it.
+- OD-07: Confirm or revert the synthetic penalty schedule. Owner: author. Decide before Iteration 2 prompts.
+- OD-08: Keep or change "Local 11" and the employer association name (cosmetic). Owner: author.
+- Closed in Iteration 1: OD-03 (hook tests at `.claude/hooks/tests/run.sh`), OD-05 (four filler crew).
 
 ## Phase and iteration
 
-Phase 0 complete. Phase 1, Iteration 1 (Domain and data) not started.
+Phase 1. Iteration 1 complete. Iteration 2 (vertical slice MEAL_PERIOD end to end) not started.
 
 ## What runs today
 
-Nothing executable yet beyond the hook:
+From `backend/` (uv required, ADR-015):
 
 ```
-printf '{"tool_name":"Bash","tool_input":{"command":"git stash list"}}' | bash .claude/hooks/block-git-write.sh; echo $?   # 0
-printf '{"tool_name":"Bash","tool_input":{"command":"git stash"}}' | bash .claude/hooks/block-git-write.sh; echo $?        # 2
+uv sync
+uv run pytest                    # 102 tests
+uv run ruff check .
+uv run ptc check                 # committed agreement, generated data and manifest equal regeneration
+uv run ptc render-agreement      # regenerate corpus/cgma-2026.1.md
+uv run ptc generate-data         # regenerate data/generated/
+uv run ptc build-manifest        # regenerate evals/cases/manifest.yaml
+```
+
+From the repository root:
+
+```
+bash .claude/hooks/tests/run.sh  # 86 git guard cases
 ```
 
 ## Known gaps
 
-- No git repository initialized at the end of the bootstrap session (author action).
-- No code, no dependencies, no data (by design for Phase 0).
-- The hook harness (86 cases) exists only in the session scratchpad; recreate it in the repository in Iteration 1 (OD-03).
+- No database, API, graph, LLM adapter or UI yet (Iteration 2 onward).
+- `Timecard` and `TimecardDay` live in the generator module and the policy decision is inlined in the expectation oracle; both move to shared modules at the start of Iteration 2 (carried-forward review finding).
+- Deal memos are YAML only; the retrieval corpus for deal memos (chunks with citation keys) is built in P1.I2.S3.
+- Custom validator agents were not registered in the bootstrap session; they were run as general-purpose agents loading the definitions. New sessions can invoke them directly.
 
 ## Risks
 
-- Schedule: six iterations in about two weeks; the vertical slice (ADR-005) is the mitigation.
+- Schedule: five iterations remain for the two-week target; the vertical slice (ADR-005) is the mitigation.
+- The penalty schedule decision (OD-07) touches the agreement text, data and manifest; deciding it late means regenerating prompts and eval baselines.
 - LLM judge calibration (ADR-003) may need more hand-labeled cases than planned.
-- Provider availability during the demo: the rehearsal includes the "needs human review" fallback path (never a template).

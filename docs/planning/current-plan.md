@@ -104,4 +104,4 @@ Conventions: step ids are `P<phase>.I<iteration>.S<step>`. Parameters always com
 
 ## Plan changes
 
-None yet. Append dated entries here (AGENTS.md, section 5) when a step changes.
+- 2026-10-08 (Iteration 1): no step contract changed. Author decisions applied: ADR-015 (uv) adds `uv.lock` and `.python-version` to the P1.I1.S1 artifacts; OD-03 resolved (hook tests at `.claude/hooks/tests/run.sh`, ADR-014); OD-05 resolved (four filler crew in P1.I1.S5). Added to P1.I2.S2 as a prerequisite from the Iteration 1 code review: move the timecard model and the policy table into shared modules (`payroll_triage/timecards.py`, `payroll_triage/policy.py`) before building the MEAL_PERIOD rule, and test the engine against the committed manifest.

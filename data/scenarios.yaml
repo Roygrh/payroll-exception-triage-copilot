@@ -1,0 +1,241 @@
+# Scenario catalog for the seeded generator. Mirrors docs/requirements/domain-model.md, section 7.
+# Every time is in decimal hours from midnight of the shift date, in tenths (see payroll.time_unit_hours).
+# Domain numbers (meal deadline, thresholds, amounts) are NOT written here: scenario day specs state
+# the construction target (for example hours_to_meal: 6.5) and the generator and the manifest builder
+# derive expectations from data/rule-parameters.yaml (ADR-007).
+
+seed: 20260314
+as_of_date: 2026-03-16            # the demo date (Monday); used for eligibility overdue and days late
+payroll_run_date: 2026-03-17      # next payroll run; used by the queue urgency rule (Iteration 2)
+demo_week_ending: 2026-03-14
+queue_status: Ready for approver 1
+holidays: []                      # recognized holidays inside the data window (none)
+
+production:
+  id: PROD-NH2
+  title: Northlight Harbor
+  season: 2
+  employer: Harborline Productions LLC
+  guild: Crew Guild, Local 11
+
+labels:
+  day_type: {work: "1-Work", travel: "2-Travel", holiday: "3-Holiday", idle: "4-Idle"}
+  work_location: {stage: S-Stage, local: L-Local location, distant: D-Distant location}
+
+# Construction templates. "clean" is the reference day; the other kinds are built relative to it.
+clean_day: {call: 7.0, meal_out: 12.0, meal_in: 12.5, wrap: 15.5}   # 8.0 hours worked
+long_day_call: 6.0                 # long days start earlier so the meal stays compliant
+long_day_meal_before_deadline: 0.5 # long-day meal begins this many hours before the meal deadline
+long_day_meal_duration: 0.5
+late_meal_duration: 0.5
+late_meal_after_hours: 3.0         # hours worked after a late meal before wrap
+wrap_before_call_wrap: 5.5
+filler_jitter:                     # seeded choices for filler clean days (all stay compliant)
+  call: [6.5, 7.0, 7.5]
+  meal_after: [4.5, 5.0, 5.5]      # hours from call to meal out (under the meal deadline)
+  after_meal: [3.0, 3.5, 4.0]      # hours from meal in to wrap
+filler_location: {hire_state: GA, hire_city: Savannah, work_state: GA, primary_work_city: Savannah}
+
+# Day spec kinds:
+#   clean                                 reference day
+#   long_day: {hours_worked}              extended or overtime day built from long_day_call
+#   late_meal: {hours_to_meal}            first meal begins this many hours after call
+#   short_meal: {meal_minutes}            meal shorter than the minimum
+#   missing: {field}                      one of call, meal_out, meal_in, wrap set to null
+#   wrap_before_call                      punch error
+#   explicit: {call, meal_out, meal_in, wrap}
+# Days not listed are clean. Keys are Mon..Fri.
+
+scenarios:
+  - id: SC-01
+    deal_memo: DM-01
+    week_ending: 2026-02-21
+    category: clean
+    description: Clean week, five standard days
+    expected: {rules: [], action: none}
+    days: {}
+
+  - id: SC-02
+    deal_memo: DM-06
+    week_ending: 2026-02-14
+    category: clean
+    description: Clean week with daily overtime (10 h days); overtime is calculated, never an exception
+    expected: {rules: [], action: none}
+    days:
+      Mon: {kind: long_day, hours_worked: 10.0}
+      Tue: {kind: long_day, hours_worked: 10.0}
+      Wed: {kind: long_day, hours_worked: 10.0}
+      Thu: {kind: long_day, hours_worked: 10.0}
+      Fri: {kind: long_day, hours_worked: 10.0}
+
+  - id: SC-03
+    deal_memo: DM-01
+    week_ending: 2026-03-14
+    category: late_meal
+    description: First meal at 6.5 h from call, complete punches
+    expected: {rules: [MEAL_PERIOD], action: approve}
+    days:
+      Tue: {kind: late_meal, hours_to_meal: 6.5}
+
+  - id: SC-04
+    deal_memo: DM-01
+    week_ending: 2026-03-07
+    category: late_meal
+    description: First meal at 7.2 h from call on two days
+    expected: {rules: [MEAL_PERIOD], action: approve}
+    days:
+      Tue: {kind: late_meal, hours_to_meal: 7.2}
+      Thu: {kind: late_meal, hours_to_meal: 7.2}
+
+  - id: SC-05
+    deal_memo: DM-02
+    week_ending: 2026-03-14
+    category: short_meal
+    description: Meal of 24 minutes (0.4 h)
+    expected: {rules: [MEAL_PERIOD], action: return}
+    days:
+      Wed: {kind: short_meal, meal_minutes: 24}
+
+  - id: SC-06
+    deal_memo: DM-02
+    week_ending: 2026-03-07
+    category: missing_punch
+    description: Missing wrap on one day
+    expected: {rules: [TIME_ENTRY_COMPLETENESS], action: return}
+    days:
+      Wed: {kind: missing, field: wrap}
+
+  - id: SC-07
+    deal_memo: DM-03
+    week_ending: 2026-02-28
+    category: missing_punch
+    description: Missing meal in on one day
+    expected: {rules: [TIME_ENTRY_COMPLETENESS], action: return}
+    days:
+      Thu: {kind: missing, field: meal_in}
+
+  - id: SC-08
+    deal_memo: DM-06
+    week_ending: 2026-02-28
+    category: missing_punch
+    description: Wrap before call (punch error)
+    expected: {rules: [TIME_ENTRY_COMPLETENESS], action: return}
+    days:
+      Tue: {kind: wrap_before_call}
+
+  - id: SC-09
+    deal_memo: DM-03
+    week_ending: 2026-03-14
+    category: extended_day
+    description: 13.5 h workday
+    expected: {rules: [EXTENDED_DAY], action: approve}
+    days:
+      Wed: {kind: long_day, hours_worked: 13.5}
+
+  - id: SC-10
+    deal_memo: DM-03
+    week_ending: 2026-03-07
+    category: extended_day
+    description: 12.5 h workday with a compliant meal
+    expected: {rules: [EXTENDED_DAY], action: approve}
+    days:
+      Thu: {kind: long_day, hours_worked: 12.5}
+
+  - id: SC-11
+    deal_memo: DM-06
+    week_ending: 2026-03-14
+    category: rest_period
+    description: 8.5 h rest between wrap and next call
+    expected: {rules: [REST_PERIOD], action: approve}
+    days:
+      Mon: {kind: explicit, call: 11.0, meal_out: 16.0, meal_in: 16.5, wrap: 20.0}
+      Tue: {kind: explicit, call: 4.5, meal_out: 9.5, meal_in: 10.0, wrap: 13.0}
+
+  - id: SC-12
+    deal_memo: DM-06
+    week_ending: 2026-03-07
+    category: rest_period
+    description: 9.5 h rest after a late wrap past midnight
+    expected: {rules: [REST_PERIOD], action: approve}
+    days:
+      Mon: {kind: explicit, call: 16.0, meal_out: 21.0, meal_in: 21.5, wrap: 25.0}
+      Tue: {kind: explicit, call: 10.5, meal_out: 15.5, meal_in: 16.0, wrap: 19.0}
+
+  - id: SC-13
+    deal_memo: DM-04
+    week_ending: 2026-03-14
+    category: scale_rate
+    description: Clean punches, deal rate below scale
+    expected: {rules: [SCALE_RATE], action: escalate}
+    days: {}
+
+  - id: SC-14
+    deal_memo: DM-04
+    week_ending: 2026-03-07
+    category: scale_rate
+    description: Below scale plus late meal (6.8 h)
+    expected: {rules: [SCALE_RATE, MEAL_PERIOD], action: escalate}
+    days:
+      Wed: {kind: late_meal, hours_to_meal: 6.8}
+
+  - id: SC-15
+    deal_memo: DM-05
+    week_ending: 2026-03-14
+    category: eligibility
+    description: Clean punches, eligibility overdue
+    expected: {rules: [ELIGIBILITY_DOC], action: escalate}
+    days: {}
+
+  - id: SC-16
+    deal_memo: DM-05
+    week_ending: 2026-03-07
+    category: eligibility
+    description: Eligibility overdue plus 12.5 h day
+    expected: {rules: [ELIGIBILITY_DOC, EXTENDED_DAY], action: escalate}
+    days:
+      Tue: {kind: long_day, hours_worked: 12.5}
+
+  - id: SC-17
+    deal_memo: DM-01
+    week_ending: 2026-02-28
+    category: multiple
+    description: Late meal (approve) plus missing meal out on another day (return)
+    expected: {rules: [MEAL_PERIOD, TIME_ENTRY_COMPLETENESS], action: return}
+    days:
+      Tue: {kind: late_meal, hours_to_meal: 6.5}
+      Thu: {kind: missing, field: meal_out}
+
+  - id: SC-18
+    deal_memo: DM-06
+    week_ending: 2026-02-21
+    category: multiple
+    description: Rest invasion (approve) plus short meal (return)
+    expected: {rules: [REST_PERIOD, MEAL_PERIOD], action: return}
+    days:
+      Mon: {kind: explicit, call: 11.0, meal_out: 16.0, meal_in: 16.5, wrap: 20.0}
+      Tue: {kind: explicit, call: 4.5, meal_out: 9.5, meal_in: 10.0, wrap: 13.0}
+      Thu: {kind: short_meal, meal_minutes: 24}
+
+# Filler crew: generated at-scale deal memos with clean weeks on the demo week ending.
+# Names are invented for this project. The generator jitters their clean days slightly (seeded).
+filler:
+  - id: SC-F01
+    employee: {id: EMP-2001, name: Tomas Achterberg}
+    occupation_code: "4125"
+    department: Camera
+    start_date: 2026-01-12
+  - id: SC-F02
+    employee: {id: EMP-2002, name: Nadia Ferreira-Holt}
+    occupation_code: "5210"
+    department: Production
+    start_date: 2026-01-05
+  - id: SC-F03
+    employee: {id: EMP-2003, name: Kofi Brennan}
+    occupation_code: "6305"
+    department: Property
+    start_date: 2026-01-19
+  - id: SC-F04
+    employee: {id: EMP-2004, name: Ines Marlowe}
+    occupation_code: "7020"
+    department: Transportation
+    start_date: 2026-01-19

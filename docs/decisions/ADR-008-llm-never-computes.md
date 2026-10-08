@@ -5,7 +5,7 @@ Date: 2026-10-07
 
 ## Context
 
-Payroll is audited. A number in an explanation ("the meal began 6.5 hours after call, two penalty increments, 17.50 USD") must be exactly the number the pay engine used. Language models are unreliable at arithmetic and at time arithmetic in particular (decimal hours, wraps past midnight, business days). Letting the model derive numbers would also make the evaluation gate measure arithmetic instead of explanation quality.
+Payroll is audited. A number in an explanation ("the meal began 6.8 hours after call, two penalty increments, 19.25 USD") must be exactly the number the pay engine used. Language models are unreliable at arithmetic and at time arithmetic in particular (decimal hours, wraps past midnight, business days). Letting the model derive numbers would also make the evaluation gate measure arithmetic instead of explanation quality.
 
 ## Decision
 

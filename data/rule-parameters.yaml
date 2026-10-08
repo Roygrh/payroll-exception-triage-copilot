@@ -1,0 +1,91 @@
+# Rule parameters: the single source of truth for every domain number (ADR-007).
+# The agreement template, the rule engine, the deal memo checks, the data generator
+# and the evaluation manifest read this file. Nothing else may hard-code these values.
+# All values are fictitious except eligibility.deadline_business_days (see ADR-001).
+
+agreement:
+  code: CGMA
+  name: Crew Guild Master Agreement
+  version: "2026.1"
+  effective_from: 2026-01-01
+  effective_to: 2026-12-31
+  parties:
+    guild: Crew Guild
+    guild_local: Local 11
+    employers: Alliance of Independent Production Employers
+  citation_prefix: CGMA-2026.1
+
+payroll:
+  week_start_day: Sunday
+  week_ending_day: Saturday
+  time_unit_hours: 0.1          # fixed convention: tenths of an hour (the arithmetic helpers assume it; schema pins it)
+  currency: USD
+
+meal:
+  deadline_hours: 6.0           # first meal must begin within this many hours after call
+  min_duration_minutes: 30      # a meal shorter than this does not count as a meal period
+  penalty_increment_minutes: 30 # each started increment past the deadline earns one penalty
+  penalty_schedule_usd: [8.25, 11.00, 13.75]   # first, second, third and later increments (synthetic values)
+
+extended_day:
+  threshold_hours: 12.0         # hours worked above this are an extended day
+  multiplier: 2.0               # rate multiplier for hours above the threshold
+
+rest:
+  min_hours: 10.0               # minimum rest between wrap and the next call
+  invasion_multiplier: 2.0      # rate multiplier for invaded hours on the following day
+
+eligibility:
+  deadline_business_days: 3     # employer verification due within this many business days of the first day of work for pay
+
+overtime:                       # calculated for pay, never an exception (ADR-010)
+  daily_after_hours: 8.0
+  daily_multiplier: 1.5
+  weekly_after_hours: 40.0
+  weekly_multiplier: 1.5
+
+plausibility:
+  max_day_hours: 20.0           # a day longer than this is treated as a data problem (return)
+
+schedule_a:                     # fictitious hourly scale by occupation code
+  - code: "4110"
+    occupation: CAMERA OPERATOR
+    hourly_scale_usd: 58.40
+  - code: "4125"
+    occupation: CAMERA ASSISTANT
+    hourly_scale_usd: 44.10
+  - code: "5210"
+    occupation: PRODUCTION COORDINATOR
+    hourly_scale_usd: 39.75
+  - code: "6305"
+    occupation: PROPERTY ASSISTANT
+    hourly_scale_usd: 36.20
+  - code: "7020"
+    occupation: SET DISPATCHER
+    hourly_scale_usd: 33.90
+
+rules:                          # rule id -> agreement sections (the policy itself lives in code, ADR-009)
+  MEAL_PERIOD:
+    section: "8.2"
+    title: Timing and duration of the first meal period
+    related_sections: ["8.3", "SCH-B"]
+  EXTENDED_DAY:
+    section: "6.2"
+    title: Extended day
+    related_sections: []
+  REST_PERIOD:
+    section: "9.1"
+    title: Minimum rest period
+    related_sections: ["9.2"]
+  TIME_ENTRY_COMPLETENESS:
+    section: "7.4"
+    title: Required time entries
+    related_sections: []
+  SCALE_RATE:
+    section: "5.1"
+    title: Minimum scale
+    related_sections: ["SCH-A", "3.2"]
+  ELIGIBILITY_DOC:
+    section: "14.2"
+    title: Employment eligibility verification deadline
+    related_sections: []

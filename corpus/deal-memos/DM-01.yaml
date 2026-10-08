@@ -1,0 +1,27 @@
+# Synthetic deal memo. All names and values are fictitious.
+id: DM-01
+employee:
+  id: EMP-1001
+  name: Avery Lindqvist
+production:
+  id: PROD-NH2
+  title: Northlight Harbor
+  season: 2
+  employer: Harborline Productions LLC
+occupation_code: "4110"
+occupation_title: CAMERA OPERATOR
+guild: Crew Guild, Local 11
+hourly_rate_usd: 62.00
+scale_relationship: above        # above | at | below, checked against Schedule A by tests
+allowances: []
+department: Camera
+hire_state: GA
+hire_city: Savannah
+work_state: GA
+primary_work_city: Savannah
+start_date: 2026-01-12
+eligibility_verification:
+  status: completed
+  completed_on: 2026-01-13
+conditions: []
+notes: "Scenario role in the catalog: late meal (approve)."

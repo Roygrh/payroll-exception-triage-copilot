@@ -1,0 +1,681 @@
+# Evaluation case manifest. Generated: do not edit by hand.
+# Regenerate with `uv run ptc build-manifest` (from backend/) after changing
+# data/rule-parameters.yaml, data/scenarios.yaml or the deal memos.
+manifest_version: 1
+generated_by: payroll_triage.evals.manifest (uv run ptc build-manifest)
+agreement:
+  code: CGMA
+  version: '2026.1'
+  citation_prefix: CGMA-2026.1
+  effective_from: '2026-01-01'
+  effective_to: '2026-12-31'
+as_of_date: '2026-03-16'
+seed: 20260314
+counts:
+  cases: 18
+  positive: 16
+  negative: 2
+quality_rubrics: added in Iteration 3 (ADR-003 tier 2)
+cases:
+- id: EV-01
+  scenario_id: SC-01
+  description: Clean week, five standard days
+  category: clean
+  timecard_id: TC-EMP-1001-20260221
+  deal_memo_id: DM-01
+  employee_id: EMP-1001
+  week_ending: '2026-02-21'
+  agreement_version_in_force: '2026.1'
+  negative: true
+  expected_action: none
+  expected_rules: []
+  expected_citation_keys: []
+  expected_findings: []
+- id: EV-02
+  scenario_id: SC-02
+  description: Clean week with daily overtime (10 h days); overtime is calculated, never an exception
+  category: clean
+  timecard_id: TC-EMP-1006-20260214
+  deal_memo_id: DM-06
+  employee_id: EMP-1006
+  week_ending: '2026-02-14'
+  agreement_version_in_force: '2026.1'
+  negative: true
+  expected_action: none
+  expected_rules: []
+  expected_citation_keys: []
+  expected_findings: []
+- id: EV-03
+  scenario_id: SC-03
+  description: First meal at 6.5 h from call, complete punches
+  category: late_meal
+  timecard_id: TC-EMP-1001-20260314
+  deal_memo_id: DM-01
+  employee_id: EMP-1001
+  week_ending: '2026-03-14'
+  agreement_version_in_force: '2026.1'
+  negative: false
+  expected_action: approve
+  expected_rules:
+  - MEAL_PERIOD
+  expected_citation_keys:
+  - CGMA-2026.1-8.2
+  - CGMA-2026.1-8.3
+  - CGMA-2026.1-SCH-B
+  expected_findings:
+  - rule_id: MEAL_PERIOD
+    section: '8.2'
+    citation_keys:
+    - CGMA-2026.1-8.2
+    - CGMA-2026.1-8.3
+    - CGMA-2026.1-SCH-B
+    policy_action: approve
+    day_date: '2026-03-10'
+    facts:
+      hours_to_meal: 6.5
+      meal_minutes: 30
+      minutes_late: 30
+      increments: 1
+      penalty_usd: '8.25'
+      is_late: true
+      is_short: false
+      deadline_hours: 6.0
+      min_duration_minutes: 30
+      increment_minutes: 30
+- id: EV-04
+  scenario_id: SC-04
+  description: First meal at 7.2 h from call on two days
+  category: late_meal
+  timecard_id: TC-EMP-1001-20260307
+  deal_memo_id: DM-01
+  employee_id: EMP-1001
+  week_ending: '2026-03-07'
+  agreement_version_in_force: '2026.1'
+  negative: false
+  expected_action: approve
+  expected_rules:
+  - MEAL_PERIOD
+  expected_citation_keys:
+  - CGMA-2026.1-8.2
+  - CGMA-2026.1-8.3
+  - CGMA-2026.1-SCH-B
+  expected_findings:
+  - rule_id: MEAL_PERIOD
+    section: '8.2'
+    citation_keys:
+    - CGMA-2026.1-8.2
+    - CGMA-2026.1-8.3
+    - CGMA-2026.1-SCH-B
+    policy_action: approve
+    day_date: '2026-03-03'
+    facts:
+      hours_to_meal: 7.2
+      meal_minutes: 30
+      minutes_late: 72
+      increments: 3
+      penalty_usd: '33.00'
+      is_late: true
+      is_short: false
+      deadline_hours: 6.0
+      min_duration_minutes: 30
+      increment_minutes: 30
+  - rule_id: MEAL_PERIOD
+    section: '8.2'
+    citation_keys:
+    - CGMA-2026.1-8.2
+    - CGMA-2026.1-8.3
+    - CGMA-2026.1-SCH-B
+    policy_action: approve
+    day_date: '2026-03-05'
+    facts:
+      hours_to_meal: 7.2
+      meal_minutes: 30
+      minutes_late: 72
+      increments: 3
+      penalty_usd: '33.00'
+      is_late: true
+      is_short: false
+      deadline_hours: 6.0
+      min_duration_minutes: 30
+      increment_minutes: 30
+- id: EV-05
+  scenario_id: SC-05
+  description: Meal of 24 minutes (0.4 h)
+  category: short_meal
+  timecard_id: TC-EMP-1002-20260314
+  deal_memo_id: DM-02
+  employee_id: EMP-1002
+  week_ending: '2026-03-14'
+  agreement_version_in_force: '2026.1'
+  negative: false
+  expected_action: return
+  expected_rules:
+  - MEAL_PERIOD
+  expected_citation_keys:
+  - CGMA-2026.1-8.2
+  - CGMA-2026.1-8.3
+  - CGMA-2026.1-SCH-B
+  expected_findings:
+  - rule_id: MEAL_PERIOD
+    section: '8.2'
+    citation_keys:
+    - CGMA-2026.1-8.2
+    - CGMA-2026.1-8.3
+    - CGMA-2026.1-SCH-B
+    policy_action: return
+    day_date: '2026-03-11'
+    facts:
+      hours_to_meal: 5.0
+      meal_minutes: 24
+      minutes_late: 0
+      increments: 0
+      penalty_usd: '0.00'
+      is_late: false
+      is_short: true
+      deadline_hours: 6.0
+      min_duration_minutes: 30
+      increment_minutes: 30
+- id: EV-06
+  scenario_id: SC-06
+  description: Missing wrap on one day
+  category: missing_punch
+  timecard_id: TC-EMP-1002-20260307
+  deal_memo_id: DM-02
+  employee_id: EMP-1002
+  week_ending: '2026-03-07'
+  agreement_version_in_force: '2026.1'
+  negative: false
+  expected_action: return
+  expected_rules:
+  - TIME_ENTRY_COMPLETENESS
+  expected_citation_keys:
+  - CGMA-2026.1-7.4
+  expected_findings:
+  - rule_id: TIME_ENTRY_COMPLETENESS
+    section: '7.4'
+    citation_keys:
+    - CGMA-2026.1-7.4
+    policy_action: return
+    day_date: '2026-03-04'
+    facts:
+      missing_entries:
+      - wrap
+      entries_out_of_order: false
+      entries:
+        call: 7.0
+        meal_out: 12.0
+        meal_in: 12.5
+        wrap: null
+- id: EV-07
+  scenario_id: SC-07
+  description: Missing meal in on one day
+  category: missing_punch
+  timecard_id: TC-EMP-1003-20260228
+  deal_memo_id: DM-03
+  employee_id: EMP-1003
+  week_ending: '2026-02-28'
+  agreement_version_in_force: '2026.1'
+  negative: false
+  expected_action: return
+  expected_rules:
+  - TIME_ENTRY_COMPLETENESS
+  expected_citation_keys:
+  - CGMA-2026.1-7.4
+  expected_findings:
+  - rule_id: TIME_ENTRY_COMPLETENESS
+    section: '7.4'
+    citation_keys:
+    - CGMA-2026.1-7.4
+    policy_action: return
+    day_date: '2026-02-26'
+    facts:
+      missing_entries:
+      - meal_in
+      entries_out_of_order: false
+      entries:
+        call: 7.0
+        meal_out: 12.0
+        meal_in: null
+        wrap: 15.5
+- id: EV-08
+  scenario_id: SC-08
+  description: Wrap before call (punch error)
+  category: missing_punch
+  timecard_id: TC-EMP-1006-20260228
+  deal_memo_id: DM-06
+  employee_id: EMP-1006
+  week_ending: '2026-02-28'
+  agreement_version_in_force: '2026.1'
+  negative: false
+  expected_action: return
+  expected_rules:
+  - TIME_ENTRY_COMPLETENESS
+  expected_citation_keys:
+  - CGMA-2026.1-7.4
+  expected_findings:
+  - rule_id: TIME_ENTRY_COMPLETENESS
+    section: '7.4'
+    citation_keys:
+    - CGMA-2026.1-7.4
+    policy_action: return
+    day_date: '2026-02-24'
+    facts:
+      missing_entries: []
+      entries_out_of_order: true
+      entries:
+        call: 7.0
+        meal_out: 12.0
+        meal_in: 12.5
+        wrap: 5.5
+- id: EV-09
+  scenario_id: SC-09
+  description: 13.5 h workday
+  category: extended_day
+  timecard_id: TC-EMP-1003-20260314
+  deal_memo_id: DM-03
+  employee_id: EMP-1003
+  week_ending: '2026-03-14'
+  agreement_version_in_force: '2026.1'
+  negative: false
+  expected_action: approve
+  expected_rules:
+  - EXTENDED_DAY
+  expected_citation_keys:
+  - CGMA-2026.1-6.2
+  expected_findings:
+  - rule_id: EXTENDED_DAY
+    section: '6.2'
+    citation_keys:
+    - CGMA-2026.1-6.2
+    policy_action: approve
+    day_date: '2026-03-11'
+    facts:
+      elapsed_hours: 14.0
+      hours_worked: 13.5
+      hours_over_threshold: 1.5
+      extended_multiplier: 2.0
+      daily_overtime_hours: 4.0
+      threshold_hours: 12.0
+      hourly_rate_usd: '42.00'
+      premium_usd: '126.00'
+- id: EV-10
+  scenario_id: SC-10
+  description: 12.5 h workday with a compliant meal
+  category: extended_day
+  timecard_id: TC-EMP-1003-20260307
+  deal_memo_id: DM-03
+  employee_id: EMP-1003
+  week_ending: '2026-03-07'
+  agreement_version_in_force: '2026.1'
+  negative: false
+  expected_action: approve
+  expected_rules:
+  - EXTENDED_DAY
+  expected_citation_keys:
+  - CGMA-2026.1-6.2
+  expected_findings:
+  - rule_id: EXTENDED_DAY
+    section: '6.2'
+    citation_keys:
+    - CGMA-2026.1-6.2
+    policy_action: approve
+    day_date: '2026-03-05'
+    facts:
+      elapsed_hours: 13.0
+      hours_worked: 12.5
+      hours_over_threshold: 0.5
+      extended_multiplier: 2.0
+      daily_overtime_hours: 4.0
+      threshold_hours: 12.0
+      hourly_rate_usd: '42.00'
+      premium_usd: '42.00'
+- id: EV-11
+  scenario_id: SC-11
+  description: 8.5 h rest between wrap and next call
+  category: rest_period
+  timecard_id: TC-EMP-1006-20260314
+  deal_memo_id: DM-06
+  employee_id: EMP-1006
+  week_ending: '2026-03-14'
+  agreement_version_in_force: '2026.1'
+  negative: false
+  expected_action: approve
+  expected_rules:
+  - REST_PERIOD
+  expected_citation_keys:
+  - CGMA-2026.1-9.1
+  - CGMA-2026.1-9.2
+  expected_findings:
+  - rule_id: REST_PERIOD
+    section: '9.1'
+    citation_keys:
+    - CGMA-2026.1-9.1
+    - CGMA-2026.1-9.2
+    policy_action: approve
+    day_date: '2026-03-10'
+    facts:
+      rest_hours: 8.5
+      invaded_hours: 1.5
+      invasion_multiplier: 2.0
+      is_invaded: true
+      previous_wrap: 20.0
+      previous_date: '2026-03-09'
+      next_call: 4.5
+      min_rest_hours: 10.0
+      hourly_rate_usd: '58.40'
+      invasion_pay_usd: '175.20'
+- id: EV-12
+  scenario_id: SC-12
+  description: 9.5 h rest after a late wrap past midnight
+  category: rest_period
+  timecard_id: TC-EMP-1006-20260307
+  deal_memo_id: DM-06
+  employee_id: EMP-1006
+  week_ending: '2026-03-07'
+  agreement_version_in_force: '2026.1'
+  negative: false
+  expected_action: approve
+  expected_rules:
+  - REST_PERIOD
+  expected_citation_keys:
+  - CGMA-2026.1-9.1
+  - CGMA-2026.1-9.2
+  expected_findings:
+  - rule_id: REST_PERIOD
+    section: '9.1'
+    citation_keys:
+    - CGMA-2026.1-9.1
+    - CGMA-2026.1-9.2
+    policy_action: approve
+    day_date: '2026-03-03'
+    facts:
+      rest_hours: 9.5
+      invaded_hours: 0.5
+      invasion_multiplier: 2.0
+      is_invaded: true
+      previous_wrap: 25.0
+      previous_date: '2026-03-02'
+      next_call: 10.5
+      min_rest_hours: 10.0
+      hourly_rate_usd: '58.40'
+      invasion_pay_usd: '58.40'
+- id: EV-13
+  scenario_id: SC-13
+  description: Clean punches, deal rate below scale
+  category: scale_rate
+  timecard_id: TC-EMP-1004-20260314
+  deal_memo_id: DM-04
+  employee_id: EMP-1004
+  week_ending: '2026-03-14'
+  agreement_version_in_force: '2026.1'
+  negative: false
+  expected_action: escalate
+  expected_rules:
+  - SCALE_RATE
+  expected_citation_keys:
+  - CGMA-2026.1-3.2
+  - CGMA-2026.1-5.1
+  - CGMA-2026.1-SCH-A
+  expected_findings:
+  - rule_id: SCALE_RATE
+    section: '5.1'
+    citation_keys:
+    - CGMA-2026.1-5.1
+    - CGMA-2026.1-SCH-A
+    - CGMA-2026.1-3.2
+    policy_action: escalate
+    day_date: null
+    facts:
+      occupation_code: '6305'
+      occupation: PROPERTY ASSISTANT
+      scale_usd: '36.20'
+      deal_memo_rate_usd: '34.00'
+      shortfall_per_hour_usd: '2.20'
+      deal_memo_id: DM-04
+- id: EV-14
+  scenario_id: SC-14
+  description: Below scale plus late meal (6.8 h)
+  category: scale_rate
+  timecard_id: TC-EMP-1004-20260307
+  deal_memo_id: DM-04
+  employee_id: EMP-1004
+  week_ending: '2026-03-07'
+  agreement_version_in_force: '2026.1'
+  negative: false
+  expected_action: escalate
+  expected_rules:
+  - MEAL_PERIOD
+  - SCALE_RATE
+  expected_citation_keys:
+  - CGMA-2026.1-3.2
+  - CGMA-2026.1-5.1
+  - CGMA-2026.1-8.2
+  - CGMA-2026.1-8.3
+  - CGMA-2026.1-SCH-A
+  - CGMA-2026.1-SCH-B
+  expected_findings:
+  - rule_id: MEAL_PERIOD
+    section: '8.2'
+    citation_keys:
+    - CGMA-2026.1-8.2
+    - CGMA-2026.1-8.3
+    - CGMA-2026.1-SCH-B
+    policy_action: approve
+    day_date: '2026-03-04'
+    facts:
+      hours_to_meal: 6.8
+      meal_minutes: 30
+      minutes_late: 48
+      increments: 2
+      penalty_usd: '19.25'
+      is_late: true
+      is_short: false
+      deadline_hours: 6.0
+      min_duration_minutes: 30
+      increment_minutes: 30
+  - rule_id: SCALE_RATE
+    section: '5.1'
+    citation_keys:
+    - CGMA-2026.1-5.1
+    - CGMA-2026.1-SCH-A
+    - CGMA-2026.1-3.2
+    policy_action: escalate
+    day_date: null
+    facts:
+      occupation_code: '6305'
+      occupation: PROPERTY ASSISTANT
+      scale_usd: '36.20'
+      deal_memo_rate_usd: '34.00'
+      shortfall_per_hour_usd: '2.20'
+      deal_memo_id: DM-04
+- id: EV-15
+  scenario_id: SC-15
+  description: Clean punches, eligibility overdue
+  category: eligibility
+  timecard_id: TC-EMP-1005-20260314
+  deal_memo_id: DM-05
+  employee_id: EMP-1005
+  week_ending: '2026-03-14'
+  agreement_version_in_force: '2026.1'
+  negative: false
+  expected_action: escalate
+  expected_rules:
+  - ELIGIBILITY_DOC
+  expected_citation_keys:
+  - CGMA-2026.1-14.2
+  expected_findings:
+  - rule_id: ELIGIBILITY_DOC
+    section: '14.2'
+    citation_keys:
+    - CGMA-2026.1-14.2
+    policy_action: escalate
+    day_date: null
+    facts:
+      first_day_of_work: '2026-03-02'
+      deadline_date: '2026-03-05'
+      completed_on: null
+      as_of: '2026-03-16'
+      is_overdue: true
+      business_days_overdue: 7
+      deadline_business_days: 3
+      deal_memo_id: DM-05
+- id: EV-16
+  scenario_id: SC-16
+  description: Eligibility overdue plus 12.5 h day
+  category: eligibility
+  timecard_id: TC-EMP-1005-20260307
+  deal_memo_id: DM-05
+  employee_id: EMP-1005
+  week_ending: '2026-03-07'
+  agreement_version_in_force: '2026.1'
+  negative: false
+  expected_action: escalate
+  expected_rules:
+  - ELIGIBILITY_DOC
+  - EXTENDED_DAY
+  expected_citation_keys:
+  - CGMA-2026.1-14.2
+  - CGMA-2026.1-6.2
+  expected_findings:
+  - rule_id: EXTENDED_DAY
+    section: '6.2'
+    citation_keys:
+    - CGMA-2026.1-6.2
+    policy_action: approve
+    day_date: '2026-03-03'
+    facts:
+      elapsed_hours: 13.0
+      hours_worked: 12.5
+      hours_over_threshold: 0.5
+      extended_multiplier: 2.0
+      daily_overtime_hours: 4.0
+      threshold_hours: 12.0
+      hourly_rate_usd: '33.90'
+      premium_usd: '33.90'
+  - rule_id: ELIGIBILITY_DOC
+    section: '14.2'
+    citation_keys:
+    - CGMA-2026.1-14.2
+    policy_action: escalate
+    day_date: null
+    facts:
+      first_day_of_work: '2026-03-02'
+      deadline_date: '2026-03-05'
+      completed_on: null
+      as_of: '2026-03-16'
+      is_overdue: true
+      business_days_overdue: 7
+      deadline_business_days: 3
+      deal_memo_id: DM-05
+- id: EV-17
+  scenario_id: SC-17
+  description: Late meal (approve) plus missing meal out on another day (return)
+  category: multiple
+  timecard_id: TC-EMP-1001-20260228
+  deal_memo_id: DM-01
+  employee_id: EMP-1001
+  week_ending: '2026-02-28'
+  agreement_version_in_force: '2026.1'
+  negative: false
+  expected_action: return
+  expected_rules:
+  - MEAL_PERIOD
+  - TIME_ENTRY_COMPLETENESS
+  expected_citation_keys:
+  - CGMA-2026.1-7.4
+  - CGMA-2026.1-8.2
+  - CGMA-2026.1-8.3
+  - CGMA-2026.1-SCH-B
+  expected_findings:
+  - rule_id: TIME_ENTRY_COMPLETENESS
+    section: '7.4'
+    citation_keys:
+    - CGMA-2026.1-7.4
+    policy_action: return
+    day_date: '2026-02-26'
+    facts:
+      missing_entries:
+      - meal_out
+      entries_out_of_order: false
+      entries:
+        call: 7.0
+        meal_out: null
+        meal_in: 12.5
+        wrap: 15.5
+  - rule_id: MEAL_PERIOD
+    section: '8.2'
+    citation_keys:
+    - CGMA-2026.1-8.2
+    - CGMA-2026.1-8.3
+    - CGMA-2026.1-SCH-B
+    policy_action: approve
+    day_date: '2026-02-24'
+    facts:
+      hours_to_meal: 6.5
+      meal_minutes: 30
+      minutes_late: 30
+      increments: 1
+      penalty_usd: '8.25'
+      is_late: true
+      is_short: false
+      deadline_hours: 6.0
+      min_duration_minutes: 30
+      increment_minutes: 30
+- id: EV-18
+  scenario_id: SC-18
+  description: Rest invasion (approve) plus short meal (return)
+  category: multiple
+  timecard_id: TC-EMP-1006-20260221
+  deal_memo_id: DM-06
+  employee_id: EMP-1006
+  week_ending: '2026-02-21'
+  agreement_version_in_force: '2026.1'
+  negative: false
+  expected_action: return
+  expected_rules:
+  - MEAL_PERIOD
+  - REST_PERIOD
+  expected_citation_keys:
+  - CGMA-2026.1-8.2
+  - CGMA-2026.1-8.3
+  - CGMA-2026.1-9.1
+  - CGMA-2026.1-9.2
+  - CGMA-2026.1-SCH-B
+  expected_findings:
+  - rule_id: MEAL_PERIOD
+    section: '8.2'
+    citation_keys:
+    - CGMA-2026.1-8.2
+    - CGMA-2026.1-8.3
+    - CGMA-2026.1-SCH-B
+    policy_action: return
+    day_date: '2026-02-19'
+    facts:
+      hours_to_meal: 5.0
+      meal_minutes: 24
+      minutes_late: 0
+      increments: 0
+      penalty_usd: '0.00'
+      is_late: false
+      is_short: true
+      deadline_hours: 6.0
+      min_duration_minutes: 30
+      increment_minutes: 30
+  - rule_id: REST_PERIOD
+    section: '9.1'
+    citation_keys:
+    - CGMA-2026.1-9.1
+    - CGMA-2026.1-9.2
+    policy_action: approve
+    day_date: '2026-02-17'
+    facts:
+      rest_hours: 8.5
+      invaded_hours: 1.5
+      invasion_multiplier: 2.0
+      is_invaded: true
+      previous_wrap: 20.0
+      previous_date: '2026-02-16'
+      next_call: 4.5
+      min_rest_hours: 10.0
+      hourly_rate_usd: '58.40'
+      invasion_pay_usd: '175.20'

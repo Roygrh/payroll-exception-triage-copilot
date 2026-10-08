@@ -22,6 +22,16 @@ Three layers, all in `.claude/`:
 - The hook was also observed live in the bootstrap session: the coding assistant loaded the new settings and the hook blocked a shell command, confirming the wiring on this machine.
 - Settings keys checked against the settings reference: `attribution` replaced the deprecated `includeCoAuthoredBy` and accepts empty strings to hide attribution; `permissions.deny` entries use the `Tool(prefix:*)` form and are evaluated per subcommand of compound commands.
 
+## Test harness (added in Iteration 1 by the author's decision)
+
+The payload cases live in the repository at `.claude/hooks/tests/run.sh` (pure bash, no dependencies). Run from the repository root:
+
+```
+bash .claude/hooks/tests/run.sh
+```
+
+It exits 0 when every case behaves as expected and prints each failing case otherwise. The suite holds 86 cases: the required pair (`git stash list` allowed, `git stash` blocked), read-only forms, state-modifying forms, `-C` and `-c` forms, chained commands, wrappers (`sh -c`, `xargs`, `env`, `timeout`, `find -exec`, Python `os.system`), quoting and escaping, PowerShell payloads, prose and heredoc false positives, and payload handling. Any change to the hook script must keep this suite green and add a case for the behavior changed.
+
 ## Consequences
 
 - Agents cannot modify git state through the shell tools; they can still inspect. Any other write path (an MCP git tool, for example) must be denied explicitly if ever added.

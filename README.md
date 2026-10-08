@@ -8,7 +8,16 @@ Everything in this repository is synthetic: the agreement, the rates, the crew, 
 
 ## Status
 
-Phase 0 (bootstrap) complete: documentation, decisions and tooling configuration. No application code yet. See `docs/progress/current-state.md` for the handoff and `docs/planning/current-plan.md` for the next steps.
+Phase 1, Iteration 1 (domain and data) complete: rule parameters with schema validation, the synthetic agreement rendered from a template, six deal memos, a seeded generator for 18 scenarios plus filler crew, and the evaluation case manifest. No LLM calls, graph, API or UI yet (Iteration 2 onward). See `docs/progress/current-state.md` for the handoff and `docs/planning/current-plan.md` for the next steps.
+
+Quick start (requires uv, see ADR-015):
+
+```
+cd backend
+uv sync
+uv run pytest
+uv run ptc check
+```
 
 ## Layout
 

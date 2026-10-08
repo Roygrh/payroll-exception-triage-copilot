@@ -1,0 +1,321 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/payroll-triage/rule-parameters.schema.json",
+  "title": "Rule parameters",
+  "description": "Schema for data/rule-parameters.yaml, the single source of truth for domain numbers (ADR-007).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "agreement",
+    "payroll",
+    "meal",
+    "extended_day",
+    "rest",
+    "eligibility",
+    "overtime",
+    "plausibility",
+    "schedule_a",
+    "rules"
+  ],
+  "properties": {
+    "agreement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "name",
+        "version",
+        "effective_from",
+        "effective_to",
+        "parties",
+        "citation_prefix"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z]{2,8}$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 3
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]{4}\\.[0-9]+$"
+        },
+        "effective_from": {
+          "type": "string",
+          "format": "date"
+        },
+        "effective_to": {
+          "type": "string",
+          "format": "date"
+        },
+        "parties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "guild",
+            "guild_local",
+            "employers"
+          ],
+          "properties": {
+            "guild": {
+              "type": "string",
+              "minLength": 3
+            },
+            "guild_local": {
+              "type": "string",
+              "minLength": 3
+            },
+            "employers": {
+              "type": "string",
+              "minLength": 3
+            }
+          }
+        },
+        "citation_prefix": {
+          "type": "string",
+          "pattern": "^[A-Z]{2,8}-[0-9]{4}\\.[0-9]+$"
+        }
+      }
+    },
+    "payroll": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "week_start_day",
+        "week_ending_day",
+        "time_unit_hours",
+        "currency"
+      ],
+      "properties": {
+        "week_start_day": {
+          "enum": [
+            "Sunday",
+            "Monday"
+          ]
+        },
+        "week_ending_day": {
+          "enum": [
+            "Saturday",
+            "Sunday"
+          ]
+        },
+        "time_unit_hours": {
+          "const": 0.1,
+          "description": "Fixed recording convention (tenths of an hour); calc.py assumes it."
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        }
+      }
+    },
+    "meal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deadline_hours",
+        "min_duration_minutes",
+        "penalty_increment_minutes",
+        "penalty_schedule_usd"
+      ],
+      "properties": {
+        "deadline_hours": {
+          "type": "number",
+          "minimum": 4,
+          "maximum": 8
+        },
+        "min_duration_minutes": {
+          "type": "integer",
+          "minimum": 15,
+          "maximum": 60
+        },
+        "penalty_increment_minutes": {
+          "type": "integer",
+          "minimum": 6,
+          "maximum": 60
+        },
+        "penalty_schedule_usd": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 100
+          }
+        }
+      }
+    },
+    "extended_day": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "threshold_hours",
+        "multiplier"
+      ],
+      "properties": {
+        "threshold_hours": {
+          "type": "number",
+          "minimum": 10,
+          "maximum": 16
+        },
+        "multiplier": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 3
+        }
+      }
+    },
+    "rest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min_hours",
+        "invasion_multiplier"
+      ],
+      "properties": {
+        "min_hours": {
+          "type": "number",
+          "minimum": 8,
+          "maximum": 12
+        },
+        "invasion_multiplier": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 3
+        }
+      }
+    },
+    "eligibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deadline_business_days"
+      ],
+      "properties": {
+        "deadline_business_days": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        }
+      }
+    },
+    "overtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "daily_after_hours",
+        "daily_multiplier",
+        "weekly_after_hours",
+        "weekly_multiplier"
+      ],
+      "properties": {
+        "daily_after_hours": {
+          "type": "number",
+          "minimum": 6,
+          "maximum": 10
+        },
+        "daily_multiplier": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "weekly_after_hours": {
+          "type": "number",
+          "minimum": 30,
+          "maximum": 48
+        },
+        "weekly_multiplier": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 3
+        }
+      }
+    },
+    "plausibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_day_hours"
+      ],
+      "properties": {
+        "max_day_hours": {
+          "type": "number",
+          "minimum": 14,
+          "maximum": 24
+        }
+      }
+    },
+    "schedule_a": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "occupation",
+          "hourly_scale_usd"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[0-9]{4}$"
+          },
+          "occupation": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z ]+$"
+          },
+          "hourly_scale_usd": {
+            "type": "number",
+            "minimum": 15,
+            "maximum": 200
+          }
+        }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "MEAL_PERIOD",
+        "EXTENDED_DAY",
+        "REST_PERIOD",
+        "TIME_ENTRY_COMPLETENESS",
+        "SCALE_RATE",
+        "ELIGIBILITY_DOC"
+      ],
+      "patternProperties": {
+        "^[A-Z][A-Z_]+$": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "section",
+            "title",
+            "related_sections"
+          ],
+          "properties": {
+            "section": {
+              "type": "string",
+              "pattern": "^[0-9]{1,2}\\.[0-9]{1,2}$"
+            },
+            "title": {
+              "type": "string",
+              "minLength": 3
+            },
+            "related_sections": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^([0-9]{1,2}\\.[0-9]{1,2}|SCH-[A-Z])$"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

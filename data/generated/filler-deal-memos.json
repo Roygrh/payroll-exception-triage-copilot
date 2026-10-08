@@ -1,0 +1,130 @@
+{
+  "generator": "payroll_triage.data.generator",
+  "seed": 20260314,
+  "deal_memos": [
+    {
+      "id": "DM-F01",
+      "employee": {
+        "id": "EMP-2001",
+        "name": "Tomas Achterberg"
+      },
+      "production": {
+        "id": "PROD-NH2",
+        "title": "Northlight Harbor",
+        "season": 2,
+        "employer": "Harborline Productions LLC"
+      },
+      "occupation_code": "4125",
+      "occupation_title": "CAMERA ASSISTANT",
+      "guild": "Crew Guild, Local 11",
+      "hourly_rate_usd": "44.10",
+      "scale_relationship": "at",
+      "allowances": [],
+      "department": "Camera",
+      "hire_state": "GA",
+      "hire_city": "Savannah",
+      "work_state": "GA",
+      "primary_work_city": "Savannah",
+      "start_date": "2026-01-12",
+      "eligibility_verification": {
+        "status": "completed",
+        "completed_on": "2026-01-13"
+      },
+      "conditions": [],
+      "notes": "Filler crew for scenario SC-F01 (clean week)."
+    },
+    {
+      "id": "DM-F02",
+      "employee": {
+        "id": "EMP-2002",
+        "name": "Nadia Ferreira-Holt"
+      },
+      "production": {
+        "id": "PROD-NH2",
+        "title": "Northlight Harbor",
+        "season": 2,
+        "employer": "Harborline Productions LLC"
+      },
+      "occupation_code": "5210",
+      "occupation_title": "PRODUCTION COORDINATOR",
+      "guild": "Crew Guild, Local 11",
+      "hourly_rate_usd": "39.75",
+      "scale_relationship": "at",
+      "allowances": [],
+      "department": "Production",
+      "hire_state": "GA",
+      "hire_city": "Savannah",
+      "work_state": "GA",
+      "primary_work_city": "Savannah",
+      "start_date": "2026-01-05",
+      "eligibility_verification": {
+        "status": "completed",
+        "completed_on": "2026-01-06"
+      },
+      "conditions": [],
+      "notes": "Filler crew for scenario SC-F02 (clean week)."
+    },
+    {
+      "id": "DM-F03",
+      "employee": {
+        "id": "EMP-2003",
+        "name": "Kofi Brennan"
+      },
+      "production": {
+        "id": "PROD-NH2",
+        "title": "Northlight Harbor",
+        "season": 2,
+        "employer": "Harborline Productions LLC"
+      },
+      "occupation_code": "6305",
+      "occupation_title": "PROPERTY ASSISTANT",
+      "guild": "Crew Guild, Local 11",
+      "hourly_rate_usd": "36.20",
+      "scale_relationship": "at",
+      "allowances": [],
+      "department": "Property",
+      "hire_state": "GA",
+      "hire_city": "Savannah",
+      "work_state": "GA",
+      "primary_work_city": "Savannah",
+      "start_date": "2026-01-19",
+      "eligibility_verification": {
+        "status": "completed",
+        "completed_on": "2026-01-20"
+      },
+      "conditions": [],
+      "notes": "Filler crew for scenario SC-F03 (clean week)."
+    },
+    {
+      "id": "DM-F04",
+      "employee": {
+        "id": "EMP-2004",
+        "name": "Ines Marlowe"
+      },
+      "production": {
+        "id": "PROD-NH2",
+        "title": "Northlight Harbor",
+        "season": 2,
+        "employer": "Harborline Productions LLC"
+      },
+      "occupation_code": "7020",
+      "occupation_title": "SET DISPATCHER",
+      "guild": "Crew Guild, Local 11",
+      "hourly_rate_usd": "33.90",
+      "scale_relationship": "at",
+      "allowances": [],
+      "department": "Transportation",
+      "hire_state": "GA",
+      "hire_city": "Savannah",
+      "work_state": "GA",
+      "primary_work_city": "Savannah",
+      "start_date": "2026-01-19",
+      "eligibility_verification": {
+        "status": "completed",
+        "completed_on": "2026-01-20"
+      },
+      "conditions": [],
+      "notes": "Filler crew for scenario SC-F04 (clean week)."
+    }
+  ]
+}

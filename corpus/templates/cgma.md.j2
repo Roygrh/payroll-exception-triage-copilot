@@ -1,0 +1,433 @@
+{#- Crew Guild Master Agreement template.
+    Every domain number is inserted from data/rule-parameters.yaml (ADR-007).
+    Headings carry the citation key in brackets so the chunker can anchor passages.
+    This is original synthetic text written for this project; it is not based on any real agreement. -#}
+# {{ agreement.name }}
+
+**Agreement code:** {{ agreement.code }}
+**Version:** {{ agreement.version }}
+**Effective:** {{ agreement.effective_from }} through {{ agreement.effective_to }}
+**Parties:** {{ agreement.employers }} (the "Employers") and {{ agreement.guild }}, {{ agreement.guild_local }} (the "Guild")
+**Citation prefix:** `{{ agreement.citation_prefix }}`
+
+> Synthetic document. This agreement was written for a software demonstration. The parties, the productions, the rates and every provision are fictitious. It is not a real collective agreement and does not describe the terms of any real organization. Numbers are rendered from a parameter file; the text is original.
+
+## Preamble [{{ key("0.0") }}]
+
+This Master Agreement is made between the Employers and the Guild for the purpose of setting out the minimum terms and conditions under which Guild members are engaged on covered productions during the term stated above. The parties record their shared intention that crews be paid accurately and promptly, that the conditions of long production days be fairly compensated, and that disputes about pay be resolved on the basis of recorded facts rather than recollection. Nothing in this Agreement prevents an Employer from offering terms more favorable to an employee than the minimums stated here.
+
+The Agreement is organized in fourteen Articles and two Schedules. Where an Article refers to a Schedule, the Schedule forms part of the Article. Section numbers are stable across printings of this version so that a reference such as "Section {{ rules.MEAL_PERIOD.section }}" always identifies the same provision.
+
+## Article 1. Definitions [{{ key("1.0") }}]
+
+### 1.1 General [{{ key("1.1") }}]
+
+Capitalized terms have the meanings given in this Article wherever they appear in the Agreement, its Schedules, and any deal memo issued under it. Singular includes plural. A reference to hours is a reference to hours and tenths of an hour unless minutes are stated expressly.
+
+### 1.2 Defined terms [{{ key("1.2") }}]
+
+**Agreement** means this {{ agreement.name }}, version {{ agreement.version }}, including Schedule A and Schedule B.
+
+**Allowance** means an amount payable under Article 10 that is not wages and is not used in the computation of any Premium.
+
+**Approver** means a person designated by the Employer under Article 11 to review Timecards at a given step, and includes the production accountant where that person is so designated.
+
+**Business Day** means a day other than a Saturday, a Sunday or a holiday recognized under Article 12.
+
+**Call** or **Call Time** means the time at which an employee is required to report and be ready to work on a given Workday, as recorded on the timecard.
+
+**Department Head** means the person responsible for a department on a Covered Production who reviews the Timecards of that department before they reach an Approver.
+
+**Covered Production** means any motion picture, episodic, streaming, commercial or live production for which an Employer has signed this Agreement or a letter of adherence to it.
+
+**Deal Memo** means the written record of the individual terms of an employee's engagement on a Covered Production, including occupation code, hourly rate, allowances, department, hire location, work location and start date, issued under Article 3.
+
+**Employer** means a signatory production company, and includes its payroll service provider when that provider acts on the Employer's behalf.
+
+**Guild** means {{ agreement.guild }}, {{ agreement.guild_local }}, and includes its authorized representatives.
+
+**Hire State** means the state in which the employee was engaged, as stated in the Deal Memo. **Work State** means the state in which the work on a given Workday is performed.
+
+**Hours Worked** on a Workday means the elapsed time from Call to Wrap, less the duration of any Meal Period that qualifies under Section {{ rules.MEAL_PERIOD.section }}. A break shorter than the minimum Meal Period duration is not deducted.
+
+**Meal Period** means an uninterrupted break for a meal during which the employee is relieved of all duties, bounded by the recorded Meal Out and Meal In times.
+
+**Meal Out** means the recorded time at which a Meal Period begins. **Meal In** means the recorded time at which the employee returns to work after a Meal Period.
+
+**Occupation Code** means the four-digit classification code assigned to a position in Schedule A.
+
+**Payroll Specialist** means a person employed or retained by the Employer with authority to resolve a referral under Section 11.4, including a conflict between a Deal Memo and this Agreement and a matter under Article 14.
+
+**Payroll Week** means the period defined in Article 4.
+
+**Premium** means an amount or rate multiplier payable in addition to the employee's straight-time rate under Articles 6, 8 or 9.
+
+**Production Accountant** means the person responsible to the Employer for the payroll of a Covered Production, who may also act as an Approver.
+
+**Rest Period** means the elapsed time between Wrap on one Workday and Call on the employee's next Workday.
+
+**Scale** means the minimum hourly rate for an Occupation Code stated in Schedule A.
+
+**Timecard** means the record of a single employee's Workdays for one Payroll Week, kept in the form described in Article 7.
+
+**Workday** means a calendar day on which an employee performs work for an Employer, together with any work continuing past midnight that began on that day.
+
+**Wrap** or **Wrap Time** means the time at which the employee is dismissed from work on a Workday, as recorded on the timecard.
+
+### 1.3 Time notation [{{ key("1.3") }}]
+
+Times on a Timecard are recorded as decimal hours counted from midnight at the start of the Workday, rounded to the nearest {{ payroll.time_unit_hours|hours }} of an hour. A time greater than twenty-four denotes the following calendar day and belongs to the Workday on which the Call occurred. Durations are computed from recorded times and expressed in hours and tenths, except that the minimum duration of a Meal Period and the increments used in Schedule B are expressed in minutes.
+
+## Article 2. Scope and jurisdiction [{{ key("2.0") }}]
+
+### 2.1 Coverage [{{ key("2.1") }}]
+
+This Agreement covers employees engaged by an Employer in any Occupation Code listed in Schedule A on a Covered Production, regardless of the medium of distribution of the production.
+
+### 2.2 Hire State and Work State [{{ key("2.2") }}]
+
+The Deal Memo shall state the Hire State. Where the Work State on a given Workday differs from the Hire State, the provisions of this Agreement continue to apply in full, and any statutory requirement of the Work State that is more favorable to the employee than the corresponding provision of this Agreement shall be applied in place of that provision for that Workday. The Employer shall record the Work State on the Timecard for each Workday performed away from the Hire State.
+
+### 2.3 Distant and local work [{{ key("2.3") }}]
+
+A Workday is performed at a Local Location when the employee reports from home, at a Distant Location when the Employer provides lodging, and on Stage when the work is performed at a studio facility designated by the Employer. The Work Location is recorded on the Timecard. Allowances connected with Distant Locations are set out in Article 10 and do not alter the hourly provisions of Articles 6, 8 and 9.
+
+### 2.4 Relationship to other agreements [{{ key("2.4") }}]
+
+Where an Employer is also bound by a project-specific side letter, the side letter governs only the matters it expressly addresses. On all other matters this Agreement governs.
+
+### 2.5 Term, versions and effective dates [{{ key("2.5") }}]
+
+This version of the Agreement is in force for Workdays from {{ agreement.effective_from }} through {{ agreement.effective_to }}. Each printed or electronic copy carries the version number and the effective period on its first page. Where a Workday falls within the effective period of a later version, the later version governs that Workday even if the Timecard is approved or paid after the period ends. A reference to a Section in any notice, decision or pay statement shall identify the version of the Agreement relied on, using the citation prefix shown on the first page followed by the Section number.
+
+### 2.6 Interpretation [{{ key("2.6") }}]
+
+Headings are for convenience and do not limit the provisions under them. Where a provision states a minimum, the Employer may exceed it. Where a provision states a deadline measured in hours after an event, the hours are counted continuously from the recorded time of the event. Where a provision refers to a Timecard being flagged, returned or referred, the action is taken within the Employer's timekeeping system and recorded under Section 11.5.
+
+## Article 3. Offers and deal memos [{{ key("3.0") }}]
+
+### 3.1 Form of offer [{{ key("3.1") }}]
+
+Before an employee's first Workday the Employer shall issue a written offer, which upon acceptance becomes the Deal Memo. The Deal Memo shall state at least: the employee's name; the Occupation Code and title; the hourly rate; any allowances; the season or production block; the department; the Hire State and hire city; the Work State and primary work city; the start date; and any special conditions agreed for the engagement.
+
+### 3.2 Deal memos may improve, never reduce [{{ key("3.2") }}]
+
+A Deal Memo may provide a rate above Scale, additional allowances, or conditions more favorable to the employee than this Agreement. A Deal Memo shall not provide a rate below the Scale for the stated Occupation Code and shall not waive any provision of Articles 6 through 9 or Article 14. Where a Deal Memo states a rate below Scale, the Scale applies, the discrepancy shall be referred to the Employer's payroll specialist for correction before the affected Timecard is paid, and the employee shall be made whole for any Workday already paid at the lower rate.
+
+### 3.3 Multiple engagements [{{ key("3.3") }}]
+
+An employee may hold more than one Deal Memo on the same Covered Production where the engagements are for different Occupation Codes or different periods. Each Deal Memo is evaluated on its own terms. Hours Worked under different Deal Memos on the same Workday are added together for the purposes of Articles 6, 8 and 9.
+
+### 3.4 Changes [{{ key("3.4") }}]
+
+A change to an Occupation Code, rate or allowance takes effect from the Workday stated in a written amendment signed by the Employer and acknowledged by the employee. Amendments are not retroactive unless they state so expressly.
+
+### 3.5 Start packet and acceptance [{{ key("3.5") }}]
+
+The offer is delivered as part of a start packet that also contains the employee information forms, the acknowledgement of the production's policies and the documentation request under Article 14. The employee accepts the offer by signing it electronically or on paper. An offer that has been issued but not accepted does not entitle the employee to pay, except that an employee who performs work at the Employer's direction before acceptance is paid under this Agreement at not less than Scale for the work performed.
+
+### 3.6 Retention and access [{{ key("3.6") }}]
+
+The Employer retains each Deal Memo, with its amendments, for the retention period of Section 13.4, and makes it available to the employee on request and to the Approvers who review the employee's Timecards. Rate information in a Deal Memo is confidential to the employee, the Employer's payroll staff and the Approvers who need it; Department Heads see rate information only where the Employer's permission settings so provide.
+
+### 3.7 Rehire [{{ key("3.7") }}]
+
+Where an employee is engaged again on a later production of the same Employer, a new Deal Memo is issued. Information from a previous start packet may be carried forward with the employee's confirmation, but the rate and the Occupation Code are stated afresh and compared with the Schedule A in force on the new start date.
+
+## Article 4. Workweek and payroll period [{{ key("4.0") }}]
+
+### 4.1 Payroll Week [{{ key("4.1") }}]
+
+The Payroll Week begins at midnight at the start of {{ payroll.week_start_day }} and ends at the end of the following {{ payroll.week_ending_day }}. The date of that {{ payroll.week_ending_day }} is the Week Ending date shown on the Timecard. The Employer's production calendar may label the same period as the producer's week; where the two labels differ, the Week Ending date governs for pay purposes.
+
+### 4.2 Allocation of a Workday to a Payroll Week [{{ key("4.2") }}]
+
+A Workday belongs to the Payroll Week in which its Call occurs, including any portion of the Workday that continues past midnight into the next calendar day or into the next Payroll Week.
+
+### 4.3 Pay date [{{ key("4.3") }}]
+
+Wages for a Payroll Week are payable on the Employer's regular pay date for that week once the Timecard has completed the approval steps described in Article 11. A Timecard returned for correction under Article 11 is paid on the first regular pay date after it is resubmitted and approved.
+
+### 4.4 Partial weeks and multiple timecards [{{ key("4.4") }}]
+
+An employee who starts or ends an engagement during a Payroll Week is paid for the Workdays actually worked in that week. Where an employee works under more than one Deal Memo in the same Payroll Week, a separate Timecard is kept for each Deal Memo and the weekly computation of Section 6.3 is made across all of them. An employee shall not have two Timecards for the same Deal Memo and the same Week Ending date.
+
+### 4.5 Payroll cut-off [{{ key("4.5") }}]
+
+The Employer publishes, before the first Workday, the day of the week by which approved Timecards must reach the payroll service for payment on the regular pay date. A Timecard that is still held at an approval step at the cut-off is paid on the following regular pay date, and the Employer informs the employee of the reason for the hold where the hold results from a return or a referral under Article 11.
+
+## Article 5. Wage scales [{{ key("5.0") }}]
+
+### 5.1 Minimum scale [{{ key("5.1") }}]
+
+The minimum hourly rate payable for each Occupation Code is the Scale stated in Schedule A. An Employer shall not engage an employee in a listed Occupation Code at an hourly rate below the Scale for that code. The rate stated in a Deal Memo is compared with Schedule A at the time the Deal Memo is issued and again whenever Schedule A is revised; if the Deal Memo rate is lower, Section 3.2 applies.
+
+### 5.2 Rates above scale [{{ key("5.2") }}]
+
+Where a Deal Memo provides a rate above Scale, all Premiums under Articles 6, 8 and 9 are computed on the Deal Memo rate, not on Scale.
+
+### 5.3 Revision of Schedule A [{{ key("5.3") }}]
+
+Schedule A may be revised by written agreement of the parties. A revision is published with an effective date and applies to Workdays on or after that date. The version number of this Agreement changes whenever Schedule A or Schedule B is revised.
+
+### 5.4 Classification disputes [{{ key("5.4") }}]
+
+A dispute about which Occupation Code applies to the work actually performed is referred under Article 13. Pending resolution, the employee is paid at the rate stated in the Deal Memo or at the Scale for the Occupation Code claimed by the employee, whichever is higher.
+
+## Article 6. Hours and overtime [{{ key("6.0") }}]
+
+### 6.1 Daily overtime [{{ key("6.1") }}]
+
+Hours Worked in excess of {{ overtime.daily_after_hours|hours }} hours on a Workday are paid at {{ overtime.daily_multiplier|multiplier }} times the employee's hourly rate, up to the extended day threshold stated in Section {{ rules.EXTENDED_DAY.section }}. Daily overtime is a pay computation and does not by itself require any approval beyond the ordinary approval of the Timecard.
+
+### 6.2 Extended day [{{ key("6.2") }}]
+
+Hours Worked in excess of {{ extended_day.threshold_hours|hours }} hours on a single Workday constitute an extended day. Every hour and part of an hour of Hours Worked beyond {{ extended_day.threshold_hours|hours }} hours is paid at {{ extended_day.multiplier|multiplier }} times the employee's hourly rate. The extended day premium replaces, and is not added to, the daily overtime rate of Section 6.1 for the same hours. The Employer shall record the reason for an extended day where the production report captures it, and a Timecard containing an extended day is flagged for review by the first approver so that the premium is confirmed before payment. Where the Timecard entries for the Workday are complete and consistent, the approver confirms the premium; where they are not, Section {{ rules.TIME_ENTRY_COMPLETENESS.section }} applies first.
+
+### 6.3 Weekly overtime [{{ key("6.3") }}]
+
+Hours Worked in excess of {{ overtime.weekly_after_hours|hours }} hours in a Payroll Week are paid at not less than {{ overtime.weekly_multiplier|multiplier }} times the employee's hourly rate. Hours already paid at a premium rate under Sections 6.1, 6.2 or Article 9 are counted toward the weekly total but are not paid a second premium under this Section.
+
+### 6.4 Travel and idle days [{{ key("6.4") }}]
+
+Time spent traveling at the Employer's direction to or from a Distant Location is recorded as a travel day and is paid as the Deal Memo provides. An idle day at a Distant Location on which no work is required is recorded as an idle day. Travel, holiday and idle days are not Workdays for the purposes of Articles 8 and 9 unless work is actually performed.
+
+### 6.5 Order of computation [{{ key("6.5") }}]
+
+For each Workday the Employer computes Hours Worked, then applies Section {{ rules.EXTENDED_DAY.section }} to hours above the extended day threshold, then Section 6.1 to the remaining hours above the daily threshold, then Article 9 to any invaded Rest Period, and finally Section 6.3 across the Payroll Week. Meal penalties under Article 8 are added as separate amounts and are not multiplied by any premium rate.
+
+### 6.6 Illustration of the extended day [{{ key("6.6") }}]
+
+By way of illustration and without limiting Section {{ rules.EXTENDED_DAY.section }}: where an employee's Hours Worked on a Workday amount to the extended day threshold of {{ extended_day.threshold_hours|hours }} hours plus one further hour, that further hour is paid at {{ extended_day.multiplier|multiplier }} times the hourly rate, the hours between the daily threshold of {{ overtime.daily_after_hours|hours }} hours and the extended day threshold are paid at {{ overtime.daily_multiplier|multiplier }} times the hourly rate, and the first {{ overtime.daily_after_hours|hours }} hours are paid at the hourly rate. A Workday whose Hours Worked do not exceed {{ extended_day.threshold_hours|hours }} hours is not an extended day however long its elapsed time, provided the Meal Period deducted qualifies under Section {{ rules.MEAL_PERIOD.section }}.
+
+## Article 7. Time reporting [{{ key("7.0") }}]
+
+### 7.1 Timecard [{{ key("7.1") }}]
+
+Each employee's time is recorded on a Timecard for each Payroll Week. The Timecard identifies the employee, the Deal Memo under which the work was performed, the Week Ending date, and for each day of the week the Day Type, the Work Location and the recorded times.
+
+### 7.2 Day Type and Work Location [{{ key("7.2") }}]
+
+The Day Type for each day is one of: work, travel, holiday or idle. The Work Location for a work day is one of: stage, local location or distant location. The Employer's timekeeping system may use coded labels for these values provided the meaning is the same.
+
+### 7.3 Recording of times [{{ key("7.3") }}]
+
+Times are recorded in the notation of Section 1.3 at the moment they occur or as soon as practicable afterwards on the same Workday. An employee who cannot record a time personally may have it recorded by the department head, who notes that the entry was made on the employee's behalf.
+
+### 7.4 Required time entries [{{ key("7.4") }}]
+
+For every Workday the Timecard shall contain four entries: Call, Meal Out, Meal In and Wrap. The entries shall be chronological: Meal Out shall not precede Call, Meal In shall not precede Meal Out, and Wrap shall not precede Meal In. A Workday on which any of the four entries is missing, or on which the entries are not chronological, is incomplete. An incomplete Workday cannot be computed under Articles 6, 8 or 9, and the Timecard shall be returned to the employee or the department head for correction under Article 11 before it is approved. Where a Workday had no Meal Period because the employee was dismissed before the meal deadline of Section {{ rules.MEAL_PERIOD.section }}, Meal Out and Meal In are both recorded as equal to Wrap and the Workday is not incomplete.
+
+### 7.5 Corrections at source [{{ key("7.5") }}]
+
+A correction to a recorded time is made by the person who recorded it or by the department head, with the original value retained in the record together with the corrected value, the date of the correction and the identity of the person who made it.
+
+### 7.6 Additional fields [{{ key("7.6") }}]
+
+The Timecard may carry additional fields for a second Meal Period, for account coding, for a production day number and for notes. Additional fields do not replace the four required entries of Section {{ rules.TIME_ENTRY_COMPLETENESS.section }}. Account coding may be assigned automatically by the Employer's system from the Deal Memo and the Work Location; an automatic assignment does not alter any computation under this Agreement.
+
+### 7.7 Plausibility of entries [{{ key("7.7") }}]
+
+An Approver may treat a Workday as implausible, and return the Timecard under Section 11.2, where the recorded entries are complete and chronological but describe a Workday whose elapsed time exceeds {{ plausibility.max_day_hours|hours }} hours, or where a recorded Meal Period is shorter than the minimum of Section {{ rules.MEAL_PERIOD.section }}, or where the same employee has overlapping Workdays on two Timecards. Treating a Workday as implausible is not a finding that the employee recorded it incorrectly; it is a request for confirmation before premiums are computed and paid.
+
+### 7.8 Employee review [{{ key("7.8") }}]
+
+Before a Timecard leaves the employee review step of Section 11.1, the employee confirms that the recorded entries are correct to the best of the employee's knowledge. An employee who cannot complete the review within the Employer's published window may authorize the Department Head to confirm on the employee's behalf, and the record shows that the confirmation was made by the Department Head.
+
+## Article 8. Meal periods [{{ key("8.0") }}]
+
+### 8.1 Entitlement [{{ key("8.1") }}]
+
+An employee is entitled to a Meal Period on every Workday, during which the employee is relieved of all duties and free to leave the immediate work area. The Employer may provide the meal or allow the employee to obtain one; in either case the time counts as a Meal Period only if it meets the requirements of Section {{ rules.MEAL_PERIOD.section }}.
+
+### 8.2 Timing and duration of the first meal period [{{ key("8.2") }}]
+
+The first Meal Period of a Workday shall begin not later than {{ meal.deadline_hours|hours }} hours after Call. A Meal Period shall last not less than {{ meal.min_duration_minutes }} minutes. A break of less than {{ meal.min_duration_minutes }} minutes is not a Meal Period: it does not satisfy this Section, it is not deducted from Hours Worked, and the Workday is treated as if no Meal Period had been taken at that time. Where the first Meal Period begins more than {{ meal.deadline_hours|hours }} hours after Call, the Employer owes the meal penalty computed under Section 8.3 for the delay, and the Workday is flagged for review by the first approver, who confirms the penalty where the Timecard entries for the Workday are complete and consistent. Where the recorded Meal Period is shorter than {{ meal.min_duration_minutes }} minutes, the Timecard shall be returned under Article 11 so that the employee or the department head can confirm whether the recorded times are correct, because a break of that length more often reflects a recording error than an actual meal.
+
+### 8.3 Meal penalty [{{ key("8.3") }}]
+
+The delay of a first Meal Period beyond the deadline of Section {{ rules.MEAL_PERIOD.section }} is measured in increments of {{ meal.penalty_increment_minutes }} minutes, counted from the deadline to the recorded Meal Out, with any started increment counted as a whole increment. For each increment the Employer pays the amount stated in Schedule B for that increment: each increment up to the {{ meal.penalty_schedule_usd|length|ordinal|lower }} at the amount listed for it, and the {{ meal.penalty_schedule_usd|length|ordinal|lower }} and every later increment at the last amount in the Schedule. Meal penalty amounts are paid in addition to all other compensation for the Workday, are not multiplied by any Premium rate, and are shown as a separate line on the pay statement identified with the Workday to which they relate.
+
+### 8.4 Second meal period [{{ key("8.4") }}]
+
+Where a Workday continues for more than the meal deadline of Section {{ rules.MEAL_PERIOD.section }} after the end of the first Meal Period, the Employer shall provide a second Meal Period on the same terms. The second Meal Period is recorded in the additional fields of the Timecard and is subject to Section 8.3 in the same manner as the first.
+
+### 8.5 Walking meals [{{ key("8.5") }}]
+
+Where the nature of the work makes it impracticable to relieve the employee of all duties, the Employer may, with the agreement of the department head, provide a meal to be eaten while remaining available for work. A walking meal does not satisfy Section {{ rules.MEAL_PERIOD.section }} and the penalty of Section 8.3 continues to accrue until a Meal Period meeting Section {{ rules.MEAL_PERIOD.section }} begins or the employee is dismissed.
+
+### 8.6 Illustration of the meal penalty [{{ key("8.6") }}]
+
+By way of illustration and without limiting Section 8.3: where Call is at a given time and the first Meal Period begins {{ meal.deadline_hours|hours }} hours after Call, no penalty is owed. Where it begins later than {{ meal.deadline_hours|hours }} hours after Call but not more than one increment of {{ meal.penalty_increment_minutes }} minutes later, one increment is owed at the first amount in Schedule B. Where it begins more than one increment but not more than two increments late, two increments are owed, each at the amount listed for its position in Schedule B. Every started increment beyond the last listed position is owed at the last amount in Schedule B. The penalty is owed in addition to pay for the time worked and is unaffected by whether the Workday later becomes an extended day.
+
+### 8.7 Dismissal before the deadline [{{ key("8.7") }}]
+
+Where the employee is dismissed before the meal deadline of Section {{ rules.MEAL_PERIOD.section }} has passed and no Meal Period was taken, no penalty is owed and the Workday is recorded under the last sentence of Section {{ rules.TIME_ENTRY_COMPLETENESS.section }}.
+
+## Article 9. Rest periods [{{ key("9.0") }}]
+
+### 9.1 Minimum rest period [{{ key("9.1") }}]
+
+An employee shall have a Rest Period of not less than {{ rest.min_hours|hours }} hours between Wrap on one Workday and Call on the employee's next Workday. The Rest Period is measured from the recorded Wrap, including any portion after midnight, to the recorded Call of the following Workday. Where the Call of the following Workday occurs before the Rest Period has been completed, the Rest Period has been invaded and Section 9.2 applies. A Timecard on which a Rest Period has been invaded is flagged for review by the first approver, who confirms the invasion pay where the Timecard entries for both Workdays are complete and consistent.
+
+### 9.2 Invasion pay [{{ key("9.2") }}]
+
+Where a Rest Period is invaded, the hours by which the Rest Period falls short of {{ rest.min_hours|hours }} hours are the invaded hours. The employee is paid for Hours Worked on the following Workday at {{ rest.invasion_multiplier|multiplier }} times the hourly rate for a number of hours equal to the invaded hours, counted from the Call of that Workday, after which the ordinary rates of Article 6 apply. Invasion pay is shown as a separate line on the pay statement identified with the Workday on which it was earned.
+
+### 9.3 Rest after a travel day [{{ key("9.3") }}]
+
+The Rest Period of Section {{ rules.REST_PERIOD.section }} applies between a travel day and the following Workday in the same manner as between two Workdays, measured from the recorded end of travel.
+
+### 9.4 Weekly rest [{{ key("9.4") }}]
+
+The Employer shall schedule at least one full calendar day without Call in each Payroll Week except where the production calendar provides otherwise and the Deal Memo records the employee's agreement.
+
+### 9.5 Illustration of invasion pay [{{ key("9.5") }}]
+
+By way of illustration and without limiting Section 9.2: where Wrap is recorded after midnight in the notation of Section 1.3 and the next Call is recorded on the following Workday, the Rest Period is the difference between the next Call, counted from the midnight that began the earlier Workday, and the recorded Wrap. Where that difference is one hour short of {{ rest.min_hours|hours }} hours, the first hour of Hours Worked on the following Workday is paid at {{ rest.invasion_multiplier|multiplier }} times the hourly rate and the remaining hours at the ordinary rates of Article 6. Where the difference equals or exceeds {{ rest.min_hours|hours }} hours, no invasion pay is owed.
+
+### 9.6 Rest Period across a Payroll Week boundary [{{ key("9.6") }}]
+
+The Rest Period is measured between consecutive Workdays regardless of whether they fall in the same Payroll Week. Invasion pay earned on the first Workday of a Payroll Week by reason of a Wrap in the preceding week is shown on the Timecard of the week in which it is earned.
+
+## Article 10. Allowances [{{ key("10.0") }}]
+
+### 10.1 Kit rental [{{ key("10.1") }}]
+
+Where an employee provides equipment, tools or a kit for use on the production, the Deal Memo may state a weekly kit rental allowance. The allowance is paid for each Payroll Week in which the kit is used and is not wages for the purposes of Articles 6, 8 and 9.
+
+### 10.2 Distant location allowances [{{ key("10.2") }}]
+
+On Distant Location Workdays the Employer provides lodging and a daily allowance for meals not provided by the production, in amounts stated in the Deal Memo or the production's published location terms.
+
+### 10.3 Mileage and travel costs [{{ key("10.3") }}]
+
+Travel directed by the Employer beyond the primary work city is reimbursed at the rate stated in the production's travel policy, which shall be made available to employees before the first Workday.
+
+### 10.4 No offset [{{ key("10.4") }}]
+
+Allowances under this Article are not offset against Scale, Premiums or meal penalties and are shown separately on the pay statement.
+
+## Article 11. Timecard corrections and approvals [{{ key("11.0") }}]
+
+### 11.1 Approval steps [{{ key("11.1") }}]
+
+A Timecard passes through the following steps before payment: preparation by or for the employee; review by the employee; review by the department head; review by one or more production approvers designated by the Employer; submission to the payroll service; processing; and payment. The Employer may combine or add approver levels for a production provided the employee and the department head reviews are retained.
+
+### 11.2 Return for correction [{{ key("11.2") }}]
+
+An approver who finds that a Timecard is incomplete under Section {{ rules.TIME_ENTRY_COMPLETENESS.section }}, that a recorded time is implausible, or that an entry conflicts with the Deal Memo may return the Timecard to the employee or the department head with a written statement of what must be corrected and the date by which the corrected Timecard must be resubmitted. A returned Timecard retains its history; corrections are made under Section 7.5.
+
+### 11.3 Confirmation of premiums [{{ key("11.3") }}]
+
+Where a Timecard is flagged under Sections {{ rules.EXTENDED_DAY.section }}, {{ rules.MEAL_PERIOD.section }} or {{ rules.REST_PERIOD.section }} and the entries for the affected Workdays are complete and consistent, the approver confirms the Premium or penalty and the Timecard proceeds to the next step. Confirmation is recorded with the identity of the approver and the time of confirmation.
+
+### 11.4 Referral to a payroll specialist [{{ key("11.4") }}]
+
+Where an approver identifies a conflict between a Deal Memo and this Agreement, including a rate below Scale under Section 3.2, or an unresolved condition under Article 14, the approver refers the Timecard to the Employer's payroll specialist. The Timecard is held at its current step until the specialist resolves the matter and records the resolution. Referral does not change the recorded times.
+
+### 11.5 Record of decisions [{{ key("11.5") }}]
+
+Every return, confirmation and referral is recorded with its date, the identity of the person who made it and the reason stated. The record is retained for the period required by Article 13 and is available to the employee and the Guild on request.
+
+### 11.6 Timecard states [{{ key("11.6") }}]
+
+The Employer's timekeeping system shows, for each Timecard, the step at which it currently rests. The states used are: draft, while entries are being made; incomplete, where Section {{ rules.TIME_ENTRY_COMPLETENESS.section }} is not satisfied; rejected, where an Approver has returned the Timecard under Section 11.2; ready for employee, ready for department head and ready for an Approver at each successive level, while awaiting the corresponding review; submitted, once released to the payroll service; processing, while the payroll service computes pay; and paid. The system may also show, for each Timecard, the Premiums and penalties computed so far and the flags raised under Sections {{ rules.EXTENDED_DAY.section }}, {{ rules.MEAL_PERIOD.section }} and {{ rules.REST_PERIOD.section }}.
+
+### 11.7 Order of work for approvers [{{ key("11.7") }}]
+
+An Approver may work Timecards in any order. Where the Employer's system orders the Approver's queue, the ordering shall give weight to the amount of pay affected, to the time elapsed since the Week Ending date and to the proximity of the payroll cut-off of Section 4.5, so that the Timecards most at risk of late payment are reviewed first. The ordering is an aid to the Approver and does not change the substantive provisions of this Agreement.
+
+### 11.8 Bulk approval [{{ key("11.8") }}]
+
+An Approver may approve several Timecards in a single action where none of them is flagged, incomplete or referred. A flagged, incomplete or referred Timecard is reviewed individually.
+
+### 11.9 Assistance to approvers [{{ key("11.9") }}]
+
+The Employer may provide Approvers with tools that summarize the provisions of this Agreement relevant to a flagged Timecard, identify the Section relied on and propose a course of action. Such tools assist the Approver; the decision to return, confirm or refer is made and recorded by the Approver personally, and the Approver remains responsible for it. A summary produced by such a tool shall cite the Section of this Agreement on which it relies, and an Approver who cannot locate the cited Section shall disregard the summary.
+
+## Article 12. Holidays [{{ key("12.0") }}]
+
+### 12.1 Recognized holidays [{{ key("12.1") }}]
+
+The production calendar issued before the first Workday lists the holidays recognized for the production. A recognized holiday on which no work is performed is recorded as a holiday day and paid as the Deal Memo provides.
+
+### 12.2 Work on a holiday [{{ key("12.2") }}]
+
+Where work is performed on a recognized holiday, the day is a Workday for all purposes of this Agreement and is paid at the holiday rate stated in the Deal Memo or the production calendar, whichever is higher.
+
+### 12.3 Holiday in a Rest Period [{{ key("12.3") }}]
+
+A holiday falling between two Workdays does not shorten the Rest Period required by Section {{ rules.REST_PERIOD.section }}; the Rest Period is measured between the actual Wrap and the actual next Call.
+
+## Article 13. Grievances [{{ key("13.0") }}]
+
+### 13.1 Informal resolution [{{ key("13.1") }}]
+
+An employee or the Guild who believes that a provision of this Agreement has not been applied correctly first raises the matter with the Employer's production accountant or payroll specialist, who reviews the Timecard record and the Deal Memo and responds in writing.
+
+### 13.2 Formal grievance [{{ key("13.2") }}]
+
+Where the matter is not resolved informally, the Guild may file a written grievance identifying the employee, the Payroll Week, the provision relied on and the remedy sought. The parties meet to resolve the grievance within a reasonable time after filing, and either party may require that the meeting be held within the production's current payroll cycle where the remedy sought is unpaid wages.
+
+### 13.3 Arbitration [{{ key("13.3") }}]
+
+A grievance not resolved under Section 13.2 may be referred by either party to an arbitrator chosen from a panel agreed between the parties. The arbitrator's decision is confined to the interpretation and application of this Agreement and is final and binding.
+
+### 13.4 Records [{{ key("13.4") }}]
+
+The Employer retains Timecards, Deal Memos, the record of decisions under Section 11.5 and pay statements for the duration of the production and for a further period required by law, and produces them on request in any proceeding under this Article.
+
+## Article 14. Eligibility documentation [{{ key("14.0") }}]
+
+### 14.1 Required documentation [{{ key("14.1") }}]
+
+Before or on the first Workday the employee completes the employee section of the employment eligibility verification form required by law and presents the documents the form requires. The Employer provides the form and a secure means of presenting documents, in person or through an authorized representative.
+
+### 14.2 Employment eligibility verification deadline [{{ key("14.2") }}]
+
+The Employer, or its authorized representative, shall examine the employee's documents and complete the employer section of the employment eligibility verification form within {{ eligibility.deadline_business_days }} business days after the employee's first day of work for pay. Business days are counted excluding Saturdays, Sundays and recognized holidays, beginning with the first business day after the first day of work. Where the employer section has not been completed by the end of that period, the verification is overdue, the Employer's payroll specialist is notified, and any Timecard of the employee that has not yet been paid is referred under Section 11.4 and held until the verification is completed or the Employer records the lawful basis on which payment proceeds. An overdue verification does not reduce the wages owed for Hours Worked.
+
+### 14.3 Re-verification [{{ key("14.3") }}]
+
+Where the employee's authorization to work is limited in time, the Employer tracks the expiry date and re-verifies before that date in the manner the form requires.
+
+### 14.4 Confidentiality [{{ key("14.4") }}]
+
+Documents presented under this Article are retained separately from the Timecard record, are accessible only to persons authorized by the Employer, and are not disclosed to department heads or approvers except to the extent of the status indicator of Section {{ rules.ELIGIBILITY_DOC.section }}.
+
+### 14.5 Status indicator [{{ key("14.5") }}]
+
+The Employer's system shows, for each Deal Memo, whether the verification of Section {{ rules.ELIGIBILITY_DOC.section }} is pending, completed or overdue, and where overdue, the number of Business Days by which it is overdue. The indicator shows no other information from the documents presented. Approvers rely on the indicator, and not on the documents, when applying Section {{ rules.ELIGIBILITY_DOC.section }} to a Timecard.
+
+### 14.6 Illustration of the deadline [{{ key("14.6") }}]
+
+By way of illustration and without limiting Section {{ rules.ELIGIBILITY_DOC.section }}: where the first day of work for pay is a Monday that is not a holiday, the {{ eligibility.deadline_business_days }} Business Days allowed are counted from the Tuesday, and the deadline falls at the close of the Business Day that completes the count. Where the first day of work is a Friday, the count begins on the following Monday, Saturdays, Sundays and holidays excepted, so that a weekend never shortens the period allowed.
+
+## Schedule A. Occupation codes and hourly scale [{{ key("SCH-A") }}]
+
+The following minimum hourly rates apply under Section {{ rules.SCALE_RATE.section }} for Workdays within the effective period of this version.
+
+| Occupation Code | Occupation | Scale (hourly, {{ payroll.currency }}) |
+| --- | --- | --- |
+{%- for entry in schedule_a %}
+| {{ entry.code }} | {{ entry.occupation }} | {{ entry.hourly_scale_usd|money }} |
+{%- endfor %}
+
+A Deal Memo for one of these Occupation Codes shall state a rate equal to or greater than the Scale shown. Occupation Codes not listed are negotiated individually and recorded in the Deal Memo; the parties may add codes to this Schedule under Section 5.3.
+
+## Schedule B. Meal penalty table [{{ key("SCH-B") }}]
+
+Amounts payable under Section 8.3 for each {{ meal.penalty_increment_minutes }}-minute increment, or part of an increment, by which the first Meal Period begins after the deadline of Section {{ rules.MEAL_PERIOD.section }}.
+
+| Increment | Amount ({{ payroll.currency }}) |
+| --- | --- |
+{%- for amount in meal.penalty_schedule_usd %}
+| {{ loop.index|ordinal }}{% if loop.last %} and each later increment{% endif %} | {{ amount|money }} |
+{%- endfor %}
+
+Worked example in words: a first Meal Period that begins between zero and one increment after the deadline earns the first amount; one that begins between one and two increments after the deadline earns the first and second amounts added together; one that begins later than the last listed position earns every listed amount plus the last amount for every further started increment.
+
+## Execution [{{ key("15.0") }}]
+
+Agreed for the Employers and for the Guild for the term stated on the first page. This version supersedes earlier versions for Workdays on or after its effective date.

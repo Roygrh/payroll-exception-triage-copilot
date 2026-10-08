@@ -1,0 +1,1416 @@
+{
+  "generator": "payroll_triage.data.generator",
+  "seed": 20260314,
+  "as_of_date": "2026-03-16",
+  "count": 22,
+  "timecards": [
+    {
+      "id": "TC-EMP-1001-20260221",
+      "scenario_id": "SC-01",
+      "employee_id": "EMP-1001",
+      "employee_name": "Avery Lindqvist",
+      "deal_memo_id": "DM-01",
+      "occupation_code": "4110",
+      "department": "Camera",
+      "week_ending": "2026-02-21",
+      "producer_week": "2026-02-15",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-02-16",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-02-17",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-02-18",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-02-19",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-02-20",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-1006-20260214",
+      "scenario_id": "SC-02",
+      "employee_id": "EMP-1006",
+      "employee_name": "Dana Whitcombe",
+      "deal_memo_id": "DM-06",
+      "occupation_code": "4110",
+      "department": "Camera",
+      "week_ending": "2026-02-14",
+      "producer_week": "2026-02-08",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-02-09",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 6.0,
+          "meal_out": 11.5,
+          "meal_in": 12.0,
+          "wrap": 16.5
+        },
+        {
+          "date": "2026-02-10",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 6.0,
+          "meal_out": 11.5,
+          "meal_in": 12.0,
+          "wrap": 16.5
+        },
+        {
+          "date": "2026-02-11",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 6.0,
+          "meal_out": 11.5,
+          "meal_in": 12.0,
+          "wrap": 16.5
+        },
+        {
+          "date": "2026-02-12",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 6.0,
+          "meal_out": 11.5,
+          "meal_in": 12.0,
+          "wrap": 16.5
+        },
+        {
+          "date": "2026-02-13",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 6.0,
+          "meal_out": 11.5,
+          "meal_in": 12.0,
+          "wrap": 16.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-1001-20260314",
+      "scenario_id": "SC-03",
+      "employee_id": "EMP-1001",
+      "employee_name": "Avery Lindqvist",
+      "deal_memo_id": "DM-01",
+      "occupation_code": "4110",
+      "department": "Camera",
+      "week_ending": "2026-03-14",
+      "producer_week": "2026-03-08",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-03-09",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-10",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 13.5,
+          "meal_in": 14.0,
+          "wrap": 17.0
+        },
+        {
+          "date": "2026-03-11",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-12",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-13",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-1001-20260307",
+      "scenario_id": "SC-04",
+      "employee_id": "EMP-1001",
+      "employee_name": "Avery Lindqvist",
+      "deal_memo_id": "DM-01",
+      "occupation_code": "4110",
+      "department": "Camera",
+      "week_ending": "2026-03-07",
+      "producer_week": "2026-03-01",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-03-02",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-03",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 14.2,
+          "meal_in": 14.7,
+          "wrap": 17.7
+        },
+        {
+          "date": "2026-03-04",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-05",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 14.2,
+          "meal_in": 14.7,
+          "wrap": 17.7
+        },
+        {
+          "date": "2026-03-06",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-1002-20260314",
+      "scenario_id": "SC-05",
+      "employee_id": "EMP-1002",
+      "employee_name": "Jordan Okafor",
+      "deal_memo_id": "DM-02",
+      "occupation_code": "4125",
+      "department": "Camera",
+      "week_ending": "2026-03-14",
+      "producer_week": "2026-03-08",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-03-09",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-10",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-11",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.4,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-12",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-13",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-1002-20260307",
+      "scenario_id": "SC-06",
+      "employee_id": "EMP-1002",
+      "employee_name": "Jordan Okafor",
+      "deal_memo_id": "DM-02",
+      "occupation_code": "4125",
+      "department": "Camera",
+      "week_ending": "2026-03-07",
+      "producer_week": "2026-03-01",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-03-02",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-03",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-04",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": null
+        },
+        {
+          "date": "2026-03-05",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-06",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-1003-20260228",
+      "scenario_id": "SC-07",
+      "employee_id": "EMP-1003",
+      "employee_name": "Priya Castellanos",
+      "deal_memo_id": "DM-03",
+      "occupation_code": "5210",
+      "department": "Production",
+      "week_ending": "2026-02-28",
+      "producer_week": "2026-02-22",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-02-23",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-02-24",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-02-25",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-02-26",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": null,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-02-27",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-1006-20260228",
+      "scenario_id": "SC-08",
+      "employee_id": "EMP-1006",
+      "employee_name": "Dana Whitcombe",
+      "deal_memo_id": "DM-06",
+      "occupation_code": "4110",
+      "department": "Camera",
+      "week_ending": "2026-02-28",
+      "producer_week": "2026-02-22",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-02-23",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-02-24",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 5.5
+        },
+        {
+          "date": "2026-02-25",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-02-26",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-02-27",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-1003-20260314",
+      "scenario_id": "SC-09",
+      "employee_id": "EMP-1003",
+      "employee_name": "Priya Castellanos",
+      "deal_memo_id": "DM-03",
+      "occupation_code": "5210",
+      "department": "Production",
+      "week_ending": "2026-03-14",
+      "producer_week": "2026-03-08",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-03-09",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-10",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-11",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 6.0,
+          "meal_out": 11.5,
+          "meal_in": 12.0,
+          "wrap": 20.0
+        },
+        {
+          "date": "2026-03-12",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-13",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-1003-20260307",
+      "scenario_id": "SC-10",
+      "employee_id": "EMP-1003",
+      "employee_name": "Priya Castellanos",
+      "deal_memo_id": "DM-03",
+      "occupation_code": "5210",
+      "department": "Production",
+      "week_ending": "2026-03-07",
+      "producer_week": "2026-03-01",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-03-02",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-03",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-04",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-05",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 6.0,
+          "meal_out": 11.5,
+          "meal_in": 12.0,
+          "wrap": 19.0
+        },
+        {
+          "date": "2026-03-06",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-1006-20260314",
+      "scenario_id": "SC-11",
+      "employee_id": "EMP-1006",
+      "employee_name": "Dana Whitcombe",
+      "deal_memo_id": "DM-06",
+      "occupation_code": "4110",
+      "department": "Camera",
+      "week_ending": "2026-03-14",
+      "producer_week": "2026-03-08",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-03-09",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 11.0,
+          "meal_out": 16.0,
+          "meal_in": 16.5,
+          "wrap": 20.0
+        },
+        {
+          "date": "2026-03-10",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 4.5,
+          "meal_out": 9.5,
+          "meal_in": 10.0,
+          "wrap": 13.0
+        },
+        {
+          "date": "2026-03-11",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-12",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-13",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-1006-20260307",
+      "scenario_id": "SC-12",
+      "employee_id": "EMP-1006",
+      "employee_name": "Dana Whitcombe",
+      "deal_memo_id": "DM-06",
+      "occupation_code": "4110",
+      "department": "Camera",
+      "week_ending": "2026-03-07",
+      "producer_week": "2026-03-01",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-03-02",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 16.0,
+          "meal_out": 21.0,
+          "meal_in": 21.5,
+          "wrap": 25.0
+        },
+        {
+          "date": "2026-03-03",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 10.5,
+          "meal_out": 15.5,
+          "meal_in": 16.0,
+          "wrap": 19.0
+        },
+        {
+          "date": "2026-03-04",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-05",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-06",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-1004-20260314",
+      "scenario_id": "SC-13",
+      "employee_id": "EMP-1004",
+      "employee_name": "Marcus Thibodeaux",
+      "deal_memo_id": "DM-04",
+      "occupation_code": "6305",
+      "department": "Property",
+      "week_ending": "2026-03-14",
+      "producer_week": "2026-03-08",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-03-09",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-10",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-11",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-12",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-13",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-1004-20260307",
+      "scenario_id": "SC-14",
+      "employee_id": "EMP-1004",
+      "employee_name": "Marcus Thibodeaux",
+      "deal_memo_id": "DM-04",
+      "occupation_code": "6305",
+      "department": "Property",
+      "week_ending": "2026-03-07",
+      "producer_week": "2026-03-01",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-03-02",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-03",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-04",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 13.8,
+          "meal_in": 14.3,
+          "wrap": 17.3
+        },
+        {
+          "date": "2026-03-05",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-06",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-1005-20260314",
+      "scenario_id": "SC-15",
+      "employee_id": "EMP-1005",
+      "employee_name": "Rin Takahashi-Moore",
+      "deal_memo_id": "DM-05",
+      "occupation_code": "7020",
+      "department": "Transportation",
+      "week_ending": "2026-03-14",
+      "producer_week": "2026-03-08",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-03-09",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-10",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-11",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-12",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-13",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-1005-20260307",
+      "scenario_id": "SC-16",
+      "employee_id": "EMP-1005",
+      "employee_name": "Rin Takahashi-Moore",
+      "deal_memo_id": "DM-05",
+      "occupation_code": "7020",
+      "department": "Transportation",
+      "week_ending": "2026-03-07",
+      "producer_week": "2026-03-01",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-03-02",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-03",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 6.0,
+          "meal_out": 11.5,
+          "meal_in": 12.0,
+          "wrap": 19.0
+        },
+        {
+          "date": "2026-03-04",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-05",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-06",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-1001-20260228",
+      "scenario_id": "SC-17",
+      "employee_id": "EMP-1001",
+      "employee_name": "Avery Lindqvist",
+      "deal_memo_id": "DM-01",
+      "occupation_code": "4110",
+      "department": "Camera",
+      "week_ending": "2026-02-28",
+      "producer_week": "2026-02-22",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-02-23",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-02-24",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 13.5,
+          "meal_in": 14.0,
+          "wrap": 17.0
+        },
+        {
+          "date": "2026-02-25",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-02-26",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": null,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-02-27",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-1006-20260221",
+      "scenario_id": "SC-18",
+      "employee_id": "EMP-1006",
+      "employee_name": "Dana Whitcombe",
+      "deal_memo_id": "DM-06",
+      "occupation_code": "4110",
+      "department": "Camera",
+      "week_ending": "2026-02-21",
+      "producer_week": "2026-02-15",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-02-16",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 11.0,
+          "meal_out": 16.0,
+          "meal_in": 16.5,
+          "wrap": 20.0
+        },
+        {
+          "date": "2026-02-17",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 4.5,
+          "meal_out": 9.5,
+          "meal_in": 10.0,
+          "wrap": 13.0
+        },
+        {
+          "date": "2026-02-18",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-02-19",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.4,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-02-20",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-2001-20260314",
+      "scenario_id": "SC-F01",
+      "employee_id": "EMP-2001",
+      "employee_name": "Tomas Achterberg",
+      "deal_memo_id": "DM-F01",
+      "occupation_code": "4125",
+      "department": "Camera",
+      "week_ending": "2026-03-14",
+      "producer_week": "2026-03-08",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-03-09",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 16.0
+        },
+        {
+          "date": "2026-03-10",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 11.5,
+          "meal_in": 12.0,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-11",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 16.0
+        },
+        {
+          "date": "2026-03-12",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 16.5
+        },
+        {
+          "date": "2026-03-13",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 6.5,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 16.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-2002-20260314",
+      "scenario_id": "SC-F02",
+      "employee_id": "EMP-2002",
+      "employee_name": "Nadia Ferreira-Holt",
+      "deal_memo_id": "DM-F02",
+      "occupation_code": "5210",
+      "department": "Production",
+      "week_ending": "2026-03-14",
+      "producer_week": "2026-03-08",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-03-09",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 6.5,
+          "meal_out": 11.5,
+          "meal_in": 12.0,
+          "wrap": 15.0
+        },
+        {
+          "date": "2026-03-10",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 11.5,
+          "meal_in": 12.0,
+          "wrap": 15.0
+        },
+        {
+          "date": "2026-03-11",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 6.5,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 16.0
+        },
+        {
+          "date": "2026-03-12",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 6.5,
+          "meal_out": 11.5,
+          "meal_in": 12.0,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-13",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.5,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 16.0
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-2003-20260314",
+      "scenario_id": "SC-F03",
+      "employee_id": "EMP-2003",
+      "employee_name": "Kofi Brennan",
+      "deal_memo_id": "DM-F03",
+      "occupation_code": "6305",
+      "department": "Property",
+      "week_ending": "2026-03-14",
+      "producer_week": "2026-03-08",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-03-09",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 16.0
+        },
+        {
+          "date": "2026-03-10",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.5,
+          "meal_out": 12.5,
+          "meal_in": 13.0,
+          "wrap": 16.0
+        },
+        {
+          "date": "2026-03-11",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.5,
+          "meal_in": 13.0,
+          "wrap": 16.0
+        },
+        {
+          "date": "2026-03-12",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 6.5,
+          "meal_out": 11.0,
+          "meal_in": 11.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-13",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 6.5,
+          "meal_out": 11.0,
+          "meal_in": 11.5,
+          "wrap": 15.5
+        }
+      ]
+    },
+    {
+      "id": "TC-EMP-2004-20260314",
+      "scenario_id": "SC-F04",
+      "employee_id": "EMP-2004",
+      "employee_name": "Ines Marlowe",
+      "deal_memo_id": "DM-F04",
+      "occupation_code": "7020",
+      "department": "Transportation",
+      "week_ending": "2026-03-14",
+      "producer_week": "2026-03-08",
+      "status": "Ready for approver 1",
+      "days": [
+        {
+          "date": "2026-03-09",
+          "weekday": "Mon",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-10",
+          "weekday": "Tue",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 6.5,
+          "meal_out": 11.0,
+          "meal_in": 11.5,
+          "wrap": 15.0
+        },
+        {
+          "date": "2026-03-11",
+          "weekday": "Wed",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 15.5
+        },
+        {
+          "date": "2026-03-12",
+          "weekday": "Thu",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.0,
+          "meal_out": 12.5,
+          "meal_in": 13.0,
+          "wrap": 17.0
+        },
+        {
+          "date": "2026-03-13",
+          "weekday": "Fri",
+          "day_type": "1-Work",
+          "work_location": "S-Stage",
+          "call": 7.5,
+          "meal_out": 12.0,
+          "meal_in": 12.5,
+          "wrap": 16.0
+        }
+      ]
+    }
+  ]
+}

@@ -8,7 +8,7 @@ How the agreement, deal memos, crew and timecards are produced so that they are 
 2. **One source of numbers.** Every domain value comes from `data/rule-parameters.yaml`. The agreement template, the deal memos, the generator and the eval manifest read it; nothing retypes a number.
 3. **Scenario-driven.** Timecards are generated to satisfy the scenario catalog in `docs/requirements/domain-model.md` (18 scenarios), not sampled randomly and then labeled. Each scenario states its trigger condition; the generator constructs events that meet it with a margin (for example a meal at 6.5 hours, not 6.01).
 4. **Seeded and reproducible.** The generator takes a seed; the same seed yields byte-identical output. The seed used for the committed demo data is recorded in the data folder.
-5. **No personal data.** Employee names come from a fictitious name list written for this project; they match no person in the source material. No emails, phone numbers, addresses or identifiers that look real.
+5. **No personal data.** Employee names are invented per deal memo and per filler entry and recorded only in `corpus/deal-memos` and `data/scenarios.yaml`; they match no person in the source material. No emails, phone numbers, addresses or identifiers that look real.
 6. **No real organizations.** Production, employer, guild and local numbers are invented. The domain consistency validator and the author's term scan check this.
 
 ## 2. The agreement (CGMA 2026.1)
@@ -27,12 +27,12 @@ How the agreement, deal memos, crew and timecards are produced so that they are 
 
 ## 4. Timecards
 
-- One payroll week (week ending 2026-03-14) for the six deal memo employees plus optional filler crew with clean weeks.
-- Per day: date, day type, work location, call, meal out, meal in, wrap in decimal hours from midnight of the shift date (values above 24.0 for next-day wraps).
+- Each scenario is one timecard for one deal memo employee on one week ending; the scenarios of an employee are spread over consecutive week endings counting back from the demo week 2026-03-14 (see the domain model, section 7). Four filler crew with generated at-scale deal memos have clean timecards on the demo week.
+- Per day: date, day type, work location, call, meal out, meal in, wrap in decimal hours from midnight of the shift date, in tenths of an hour (values above 24.0 for next-day wraps). Monday to Friday are work days; Saturday and Sunday are omitted.
 - Scenario construction rules:
   - Clean day: call 7.0, meal 12.0 to 12.5, wrap 15.5 (8.0 hours worked).
-  - Late meal: meal out at call plus deadline plus the scenario's lateness (0.5 h or 1.25 h), meal duration 0.5 h, day length under 12 hours.
-  - Short meal: meal duration 20 minutes, otherwise clean.
+  - Late meal: meal out at call plus deadline plus the scenario's lateness (0.5 h, 0.8 h or 1.2 h), meal duration 0.5 h, day length under 12 hours.
+  - Short meal: meal duration 24 minutes (0.4 h), otherwise clean.
   - Missing punch: the named field is null; other days clean.
   - Wrap before call: wrap value lower than call on one day.
   - Extended day: hours worked 13.5 or 12.5 with a compliant meal before 6.0 hours.

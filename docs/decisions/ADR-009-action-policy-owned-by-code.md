@@ -1,6 +1,6 @@
 # ADR-009: Action policy owned by code
 
-Status: Accepted
+Status: Accepted (refinement confirmed by the author at the start of Iteration 1: the LLM proposes the action; a mismatch with the code-owned policy routes the case to human review)
 Date: 2026-10-07
 
 ## Context

@@ -16,7 +16,7 @@ Each assumption is tagged with its origin: **from brief** (the original project 
 | A-10 | Langfuse Cloud US region is acceptable for synthetic demo data | from approved decision (ADR-004) | confirmed (no personal data in traces) | tracing |
 | A-11 | Normal overtime never needs a human decision | from approved decision (ADR-010) | open | rule set |
 | A-12 | Code can own the action policy without making the LLM's proposal redundant (the justification and the requested correction are the value) | from approved decision (ADR-009) | open | propose node, UI |
-| A-13 | Times stored as decimal hours from midnight of the shift date (values above 24 for next-day wraps) are sufficient and unambiguous | introduced in bootstrap | open | generator, engine |
+| A-13 | Times stored as decimal hours from midnight of the shift date, in tenths of an hour (values above 24 for next-day wraps), are sufficient and unambiguous | introduced in bootstrap, refined in Iteration 1 | open | generator, engine |
 | A-14 | Payroll week is Sunday to Saturday with week ending on Saturday | introduced in bootstrap | open | generator, agreement article 4 |
 | A-15 | A meal shorter than 30 minutes is a data problem (return) rather than a premium case | introduced in bootstrap | open | MEAL_PERIOD policy |
 | A-16 | A late meal with complete, plausible data is approved with the premium added by code (no human correction needed) | from approved decision (ADR-009) | open | MEAL_PERIOD policy |

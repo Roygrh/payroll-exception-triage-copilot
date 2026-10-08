@@ -1,6 +1,6 @@
 # Domain model
 
-Everything in this document is fictitious except where marked. Numeric values are authoritative only in `data/rule-parameters.yaml` once it exists (Iteration 1, ADR-007); this document records the agreed design values and must be kept equal to the YAML.
+Everything in this document is fictitious except where marked. Numeric values are authoritative only in `data/rule-parameters.yaml` (ADR-007); this document records the agreed design values and must be kept equal to the YAML.
 
 ## 1. The agreement
 
@@ -19,7 +19,7 @@ Everything in this document is fictitious except where marked. Numeric values ar
 | --- | --- | --- |
 | 1 | Definitions | Call, wrap, meal period, rest period, workday, workweek, scale, deal memo, hire state, work state |
 | 2 | Scope and jurisdiction | Applies to covered productions; where hire state and work state differ, the provision more favorable to the employee applies (no Phase 1 rule depends on this) |
-| 3 | Offers and deal memos | A deal memo may improve on scale and conditions; it may never reduce them (basis for SCALE_RATE) |
+| 3 | Offers and deal memos | 3.2 a deal memo may improve on scale and conditions; it may never reduce them (basis for SCALE_RATE, cited with 5.1 and Schedule A) |
 | 4 | Workweek and payroll period | Payroll week Sunday to Saturday; week ending is Saturday; producer week starts Sunday |
 | 5 | Wage scales | 5.1 minimum hourly scale by occupation code per Schedule A |
 | 6 | Hours and overtime | 6.1 daily overtime after 8.0 h at 1.5x; 6.2 extended day over 12.0 h at 2.0x; 6.3 weekly overtime after 40.0 h at 1.5x |
@@ -32,7 +32,7 @@ Everything in this document is fictitious except where marked. Numeric values ar
 | 13 | Grievances | Escalation route; informational |
 | 14 | Eligibility documentation | 14.2 employment eligibility verification must be completed within 3 business days of the start date |
 | Schedule A | Occupation codes and hourly scale | Five codes (section 4) |
-| Schedule B | Meal penalty table | 30-minute increments: 7.50, 10.00, 12.50 USD (third and later increments at the last value) |
+| Schedule B | Meal penalty table | 30-minute increments: 8.25, 11.00, 13.75 USD (third and later increments at the last value) |
 
 ## 2. Rule parameters (design values)
 
@@ -43,7 +43,7 @@ All fictitious except the eligibility deadline.
 | `meal.deadline_hours` | 6.0 | MEAL_PERIOD |
 | `meal.min_duration_minutes` | 30 | MEAL_PERIOD |
 | `meal.penalty_increment_minutes` | 30 | MEAL_PERIOD (premium calculation) |
-| `meal.penalty_schedule_usd` | [7.50, 10.00, 12.50] | MEAL_PERIOD; third and later increments use the last value |
+| `meal.penalty_schedule_usd` | [8.25, 11.00, 13.75] | MEAL_PERIOD; third and later increments use the last value |
 | `extended_day.threshold_hours` | 12.0 | EXTENDED_DAY |
 | `extended_day.multiplier` | 2.0 | EXTENDED_DAY |
 | `rest.min_hours` | 10.0 | REST_PERIOD |
@@ -53,6 +53,8 @@ All fictitious except the eligibility deadline.
 | `overtime.daily_multiplier` | 1.5 | calculation only |
 | `overtime.weekly_after_hours` | 40.0 | calculation only |
 | `overtime.weekly_multiplier` | 1.5 | calculation only |
+| `plausibility.max_day_hours` | 20.0 | MEAL_PERIOD, EXTENDED_DAY and REST_PERIOD plausibility (approve versus return); agreement 7.7 |
+| `payroll.time_unit_hours` | 0.1 | timecard recording unit (tenths of an hour); agreement 1.3 |
 
 ## 3. Exception rules
 
@@ -62,7 +64,7 @@ All fictitious except the eligibility deadline.
 | EXTENDED_DAY | 6.2 | Hours worked in a day over 12.0 | hours worked, hours over threshold, premium at 2.0x | approve (code adds the premium line) |
 | REST_PERIOD | 9.1 (pay from 9.2) | Under 10.0 h between wrap and the next day's call | rest hours, invaded hours, invasion pay at 2.0x | approve (code adds the premium line) |
 | TIME_ENTRY_COMPLETENESS | 7.4 | Missing call, meal out, meal in or wrap on a work day; wrap before call; meal in before meal out | which entries are missing or out of order | return |
-| SCALE_RATE | 5.1 and Schedule A | Deal memo hourly rate below the scale for the occupation code | scale, deal rate, shortfall per hour | escalate (source conflict: the system shows both sources, never resolves silently) |
+| SCALE_RATE | 5.1 and Schedule A (with 3.2) | Deal memo hourly rate below the scale for the occupation code | scale, deal rate, shortfall per hour | escalate (source conflict: the system shows both sources, never resolves silently) |
 | ELIGIBILITY_DOC | 14.2 | Employment eligibility verification not completed within 3 business days of the start date | deadline date, days overdue | escalate (compliance block) |
 
 ### Severity and combination (ADR-009)
@@ -73,13 +75,14 @@ All fictitious except the eligibility deadline.
 
 ### Derived quantities
 
-- Times are decimal hours from midnight of the shift date; a value above 24.0 means the next calendar day.
+- Times are decimal hours from midnight of the shift date, recorded in tenths of an hour (6-minute units, `payroll.time_unit_hours` in the YAML); a value above 24.0 means the next calendar day. Scenario values are therefore multiples of 0.1 h.
 - Meal duration = meal in minus meal out (hours, converted to minutes for the 30-minute test).
 - Hours to first meal = meal out minus call.
 - Hours worked = (wrap minus call) minus meal duration when the meal lasted at least 30 minutes; a meal shorter than 30 minutes is not deducted.
 - Rest hours = (next day's call plus 24.0) minus wrap.
 - Meal penalty increments = ceiling((meal out minus call minus 6.0) hours times 60 divided by 30); amount = sum of the schedule values, the last value repeating.
-- Plausibility (for approve versus return): a late meal is plausible when all four entries exist, are chronological, the meal lasted at least 30 minutes and the day is under 20.0 hours; otherwise the day is returned.
+- Premium lines (extended day, rest invasion) are the full pay for the affected hours at the multiplied rate (hours x hourly rate x multiplier); they replace, and are not added to, the base pay for those hours (agreement 6.2 and 6.5). The pay summary built in Iteration 2 must honor this so the manifest facts `premium_usd` and `invasion_pay_usd` keep their meaning. Meal penalties are flat amounts added on top (agreement 8.3).
+- Plausibility (for approve versus return, applied to MEAL_PERIOD, EXTENDED_DAY and REST_PERIOD): a premium finding is plausible when all four entries exist, are chronological, the meal lasted at least 30 minutes and the elapsed day is not above 20.0 hours (`plausibility.max_day_hours`); otherwise the day is returned.
 
 ### Queue priority (code-owned business rule, proposed; final formula in Iteration 2)
 
@@ -116,10 +119,12 @@ Fields: id, employee, occupation code, guild, hourly rate, allowances, season, d
 | DM-02 | Jordan Okafor | 4125 | 44.10 | at scale | kit rental 75.00/week | Camera | same | 2026-01-12 | 2026-01-14 | short meal (return) |
 | DM-03 | Priya Castellanos | 5210 | 42.00 | above | none | Production | same | 2026-01-05 | 2026-01-06 | extended day (approve) |
 | DM-04 | Marcus Thibodeaux | 6305 | 34.00 | BELOW (scale 36.20) | none | Property | different | 2026-02-23 | 2026-02-24 | rate below scale (escalate) |
-| DM-05 | Rin Takahashi-Moore | 7020 | 33.90 | at scale | none | Transportation | same | 2026-03-09 | not completed | eligibility overdue (escalate) |
+| DM-05 | Rin Takahashi-Moore | 7020 | 33.90 | at scale | none | Transportation | same | 2026-03-02 | not completed | eligibility overdue (escalate) |
 | DM-06 | Dana Whitcombe | 4110 | 58.40 | at scale | none | Camera | same | 2026-01-12 | 2026-01-13 | rest invasion (approve) |
 
-Names are invented for this project and appear in no source material. Each deal memo is one crew member on the production; the generator may add filler crew with clean weeks.
+Names are invented for this project and appear in no source material. Each deal memo is one crew member on the production. DM-05 starts on 2026-03-02 (a Monday) so that two payroll weeks exist for it; its verification deadline is 2026-03-05 and it is 7 business days overdue on the demo date 2026-03-16.
+
+**Filler crew (decided in Iteration 1):** the generator adds four filler crew members (employees EMP-2001 to EMP-2004 with generated at-scale deal memos DM-F01 to DM-F04) and clean weeks for the demo week ending, so the ingested batch looks like a real week. They are listed in the scenario catalog as SC-F01 to SC-F04, category clean, and never produce a case.
 
 ## 6. Timecard model
 
@@ -142,8 +147,8 @@ The exception queue consumes timecards in status `Ready for approver 1` (the app
 | SC-01 | DM-01 | Clean week, five standard days | none | none | none (no exception) |
 | SC-02 | DM-06 | Clean week with daily overtime (10 h days) | none (overtime calculated only) | none | none |
 | SC-03 | DM-01 | First meal at 6.5 h from call, complete punches | MEAL_PERIOD | 8.2 | approve |
-| SC-04 | DM-01 | First meal at 7.25 h from call on two days | MEAL_PERIOD | 8.2 | approve |
-| SC-05 | DM-02 | Meal of 20 minutes | MEAL_PERIOD | 8.2 | return |
+| SC-04 | DM-01 | First meal at 7.2 h from call on two days | MEAL_PERIOD | 8.2 | approve |
+| SC-05 | DM-02 | Meal of 24 minutes (0.4 h) | MEAL_PERIOD | 8.2 | return |
 | SC-06 | DM-02 | Missing wrap on one day | TIME_ENTRY_COMPLETENESS | 7.4 | return |
 | SC-07 | DM-03 | Missing meal in on one day | TIME_ENTRY_COMPLETENESS | 7.4 | return |
 | SC-08 | DM-06 | Wrap before call (punch error) | TIME_ENTRY_COMPLETENESS | 7.4 | return |
@@ -152,7 +157,7 @@ The exception queue consumes timecards in status `Ready for approver 1` (the app
 | SC-11 | DM-06 | 8.5 h rest between wrap and next call | REST_PERIOD | 9.1 | approve |
 | SC-12 | DM-06 | 9.5 h rest after a late wrap past midnight | REST_PERIOD | 9.1 | approve |
 | SC-13 | DM-04 | Clean punches, deal rate below scale | SCALE_RATE | 5.1 | escalate |
-| SC-14 | DM-04 | Below scale plus late meal (6.75 h) | SCALE_RATE, MEAL_PERIOD | 5.1, 8.2 | escalate (most severe) |
+| SC-14 | DM-04 | Below scale plus late meal (6.8 h) | SCALE_RATE, MEAL_PERIOD | 5.1, 8.2 | escalate (most severe) |
 | SC-15 | DM-05 | Clean punches, eligibility overdue | ELIGIBILITY_DOC | 14.2 | escalate |
 | SC-16 | DM-05 | Eligibility overdue plus 12.5 h day | ELIGIBILITY_DOC, EXTENDED_DAY | 14.2, 6.2 | escalate (most severe) |
 | SC-17 | DM-01 | Late meal (approve) plus missing meal out on another day (return) | MEAL_PERIOD, TIME_ENTRY_COMPLETENESS | 8.2, 7.4 | return (most severe) |
@@ -161,6 +166,8 @@ The exception queue consumes timecards in status `Ready for approver 1` (the app
 Counts: clean week 2; late meal complete 2; meal under 30 min 1; missing punch 3; workday over 12 h 2; rest under 10 h 2; rate below scale 2; eligibility overdue 2; multiple findings 2.
 
 SC-13 and SC-14 are the "source conflict" cases of demo step 4: the deal memo and the agreement disagree and both are shown.
+
+**Week assignment (decided in Iteration 1).** An employee has at most one timecard per week ending, so the scenarios of one deal memo are spread over consecutive week endings counting back from the demo week 2026-03-14, never earlier than the deal memo's start date. The showcase scenario of each employee (SC-03, SC-05, SC-09, SC-11, SC-13, SC-15) and the filler crew are on the demo week; the others are on 2026-03-07, 2026-02-28, 2026-02-21 and 2026-02-14. All of them sit in `Ready for approver 1` on the demo date, which gives the queue a realistic spread of days late. The exact assignment is in `data/scenarios.yaml`.
 
 ## 8. Evaluation case manifest (Iteration 1 artifact)
 
