@@ -1,0 +1,47 @@
+# Local stack for the Payroll Exception Triage Copilot (Iteration 2: database and API).
+# Run from the repository root:  docker compose -f deployment/docker-compose.yml up db
+# The single environment file is the root .env (template: .env.example).
+
+name: ptc
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: ptc-db
+    environment:
+      POSTGRES_USER: ptc
+      POSTGRES_PASSWORD: ptc
+      POSTGRES_DB: ptc
+    ports:
+      - "5432:5432"
+    volumes:
+      - ptc-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ptc -d ptc"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.api
+    container_name: ptc-api
+    env_file:
+      - ../.env
+    environment:
+      # Inside the compose network the database host is the service name.
+      DATABASE_URL: postgresql://ptc:ptc@db:5432/ptc
+      PTC_REPO_ROOT: /app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      # The embedding model downloaded on first run is cached here (ADR-017).
+      - ptc-model-cache:/root/.cache/fastembed
+
+volumes:
+  ptc-db-data:
+  ptc-model-cache:

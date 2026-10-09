@@ -7,7 +7,7 @@
 **Agreement code:** {{ agreement.code }}
 **Version:** {{ agreement.version }}
 **Effective:** {{ agreement.effective_from }} through {{ agreement.effective_to }}
-**Parties:** {{ agreement.employers }} (the "Employers") and {{ agreement.guild }}, {{ agreement.guild_local }} (the "Guild")
+**Parties:** {{ agreement.employers }} (the "Employers") and {{ agreement.guild }} (the "Guild")
 **Citation prefix:** `{{ agreement.citation_prefix }}`
 
 > Synthetic document. This agreement was written for a software demonstration. The parties, the productions, the rates and every provision are fictitious. It is not a real collective agreement and does not describe the terms of any real organization. Numbers are rendered from a parameter file; the text is original.
@@ -44,7 +44,7 @@ Capitalized terms have the meanings given in this Article wherever they appear i
 
 **Employer** means a signatory production company, and includes its payroll service provider when that provider acts on the Employer's behalf.
 
-**Guild** means {{ agreement.guild }}, {{ agreement.guild_local }}, and includes its authorized representatives.
+**Guild** means {{ agreement.guild }}, and includes its authorized representatives.
 
 **Hire State** means the state in which the employee was engaged, as stated in the Deal Memo. **Work State** means the state in which the work on a given Workday is performed.
 
@@ -246,7 +246,7 @@ The first Meal Period of a Workday shall begin not later than {{ meal.deadline_h
 
 ### 8.3 Meal penalty [{{ key("8.3") }}]
 
-The delay of a first Meal Period beyond the deadline of Section {{ rules.MEAL_PERIOD.section }} is measured in increments of {{ meal.penalty_increment_minutes }} minutes, counted from the deadline to the recorded Meal Out, with any started increment counted as a whole increment. For each increment the Employer pays the amount stated in Schedule B for that increment: each increment up to the {{ meal.penalty_schedule_usd|length|ordinal|lower }} at the amount listed for it, and the {{ meal.penalty_schedule_usd|length|ordinal|lower }} and every later increment at the last amount in the Schedule. Meal penalty amounts are paid in addition to all other compensation for the Workday, are not multiplied by any Premium rate, and are shown as a separate line on the pay statement identified with the Workday to which they relate.
+The delay of a first Meal Period beyond the deadline of Section {{ rules.MEAL_PERIOD.section }} is measured in increments of {{ meal.penalty_increment_minutes }} minutes, counted from the deadline to the recorded Meal Out, with any started increment counted as a whole increment. For each increment the Employer pays the amount stated in Schedule B for that increment: each listed increment at the amount listed for it, and the {{ meal.penalty_schedule_usd|length|ordinal|lower }} and every later increment at the last amount in the Schedule. Meal penalty amounts are paid in addition to all other compensation for the Workday, are not multiplied by any Premium rate, and are shown as a separate line on the pay statement identified with the Workday to which they relate.
 
 ### 8.4 Second meal period [{{ key("8.4") }}]
 

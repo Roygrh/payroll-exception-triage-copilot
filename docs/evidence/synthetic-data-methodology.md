@@ -9,7 +9,7 @@ How the agreement, deal memos, crew and timecards are produced so that they are 
 3. **Scenario-driven.** Timecards are generated to satisfy the scenario catalog in `docs/requirements/domain-model.md` (18 scenarios), not sampled randomly and then labeled. Each scenario states its trigger condition; the generator constructs events that meet it with a margin (for example a meal at 6.5 hours, not 6.01).
 4. **Seeded and reproducible.** The generator takes a seed; the same seed yields byte-identical output. The seed used for the committed demo data is recorded in the data folder.
 5. **No personal data.** Employee names are invented per deal memo and per filler entry and recorded only in `corpus/deal-memos` and `data/scenarios.yaml`; they match no person in the source material. No emails, phone numbers, addresses or identifiers that look real.
-6. **No real organizations.** Production, employer, guild and local numbers are invented. The domain consistency validator and the author's term scan check this.
+6. **No real organizations.** Production, employer and guild names are invented; no guild local number is used (OD-08, Iteration 2). The domain consistency validator and the author's term scan check this.
 
 ## 2. The agreement (CGMA 2026.1)
 

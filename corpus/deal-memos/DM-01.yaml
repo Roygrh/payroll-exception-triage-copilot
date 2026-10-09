@@ -10,7 +10,7 @@ production:
   employer: Harborline Productions LLC
 occupation_code: "4110"
 occupation_title: CAMERA OPERATOR
-guild: Crew Guild, Local 11
+guild: Crew Guild
 hourly_rate_usd: 62.00
 scale_relationship: above        # above | at | below, checked against Schedule A by tests
 allowances: []

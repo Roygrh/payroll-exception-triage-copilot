@@ -4,54 +4,64 @@
 
 **Done**
 - Iteration 000 (2026-10-07): bootstrap. Rules, tool guardrails (git guard hook), five validator subagents, requirements, architecture, ADR-001 to ADR-014, plan, evidence set.
-- Iteration 001 (2026-10-07 to 2026-10-08): domain and data. Rule parameters YAML with schema and semantic validation (ADR-007); Crew Guild Master Agreement 2026.1 rendered from a template (about 6,500 words, 97 anchored sections); six deal memos checked against Schedule A; scenario catalog and seeded generator (22 timecards: 18 scenarios plus 4 filler); expectation oracle and evaluation manifest (18 cases); ADR-015 (uv); hook test suite moved into the repository. 102 backend tests, 86 hook cases, all validators PASS at the gate (see `iterations/iteration-001.md`).
+- Iteration 001 (2026-10-07 to 2026-10-08): domain and data. Rule parameters YAML with schema, rendered agreement, six deal memos, seeded generator (22 timecards), expectation oracle and manifest (18 cases), ADR-015.
+- Iteration 002 (2026-10-08): vertical slice MEAL_PERIOD end to end. Shared timecard model and code-owned policy; rule engine tested against the manifest; PostgreSQL 16 with pgvector, migrations, audit triggers and LangGraph checkpoint tables; corpus ingestion with local embeddings and hybrid retrieval (ADR-017); LLM adapter v1 with the OpenAI-compatible default (ADR-016); LangGraph state machine with citation, number and policy validation, durable human checkpoint, execute and audit; FastAPI API for demo steps 1 to 3; C4 level 3 and sequence diagrams. 175 backend tests, 86 hook cases, validators PASS at the gate (see `iterations/iteration-002.md`). OD-06, OD-07, OD-08 closed.
+- Last steps: P1.I2.S7 (API) and P1.I2.S8 (this handoff). The real-LLM acceptance run is pending on a valid provider key (OD-09).
 
 **Next**
-- The author: review and commit Iteration 1; decide OD-07 (penalty schedule 8.25 / 11.00 / 13.75 versus the brief's values, see iteration-001 deviation 1).
-- Then step **P1.I2.S1** (database and migrations: PostgreSQL 16 with pgvector in compose, data model outline, checkpointer setup). Validator: test-engineer. Before P1.I2.S2, do the carried-forward refactor: shared timecard model module and `policy.py` with a test per ADR-009 row, then build the MEAL_PERIOD rule on `calc.py` and test it against the committed manifest.
+- The author: paste a valid `GROQ_API_KEY` into the root `.env`, then from `backend/`: `uv run ptc smoke-llm` (records the live rate-limit headers) and `uv run ptc showcase --decision return` (SC-03 end to end with the real model). Paste the output into `iteration-002.md` under "Showcase run" and the limits into ADR-016. Review and commit Iteration 2.
+- Then step **P1.I3.S1** (evaluation harness running the graph on each manifest case with the real adapter; per-case report). Needs: the valid key, the compose database up, `ptc migrate`, `ptc seed`, `ptc ingest-corpus`. Validators: test-engineer, code-reviewer. Note for the harness: load the committed manifest (`load_manifest()`), do not rebuild it; only MEAL_PERIOD cases and clean weeks run until Iteration 5 wires the other rules.
 
 **Open decisions**
-- OD-01: Queue priority formula (domain model, section 3, proposed). Owner: author. Decide in P1.I2.S7.
+- OD-01: Queue priority weights (implemented as proposed in the YAML `queue` block). Owner: author. Confirm or change the YAML; no ADR needed unless the formula changes.
 - OD-02: Tier 2 thresholds and judge model (ADR-003). Owner: author. Decide in P1.I3.S3 after the baseline run.
 - OD-04: LangGraph instrumentation library for OpenTelemetry (ADR-004). Owner: author. Decide in P1.I6.S1.
-- OD-06: Exact agreement wording for article 2 (jurisdiction). Owner: author. Current text (2.2, more favorable provision applies when hire state and work state differ) stands unless changed; no Phase 1 rule depends on it.
-- OD-07: Confirm or revert the synthetic penalty schedule. Owner: author. Decide before Iteration 2 prompts.
-- OD-08: Keep or change "Local 11" and the employer association name (cosmetic). Owner: author.
-- Closed in Iteration 1: OD-03 (hook tests at `.claude/hooks/tests/run.sh`), OD-05 (four filler crew).
+- OD-09: Provide a valid provider key and record the showcase output and the live rate limits. Owner: author. Updates `iteration-002.md` and ADR-016.
+- OD-10: Approver authentication (Phase 2; `actor` is self-asserted in Phase 1). Owner: author. ADR in Phase 2.
+- Closed in Iteration 2: OD-06, OD-07, OD-08.
 
 ## Phase and iteration
 
-Phase 1. Iteration 1 complete. Iteration 2 (vertical slice MEAL_PERIOD end to end) not started.
+Phase 1. Iteration 2 complete except the real-LLM acceptance run (OD-09). Iteration 3 (evaluation harness and two-tier gate) not started.
 
 ## What runs today
+
+From the repository root:
+
+```
+cp .env.example .env                                  # then paste the provider key
+docker compose -f deployment/docker-compose.yml up -d db
+bash .claude/hooks/tests/run.sh                       # 86 git guard cases
+```
 
 From `backend/` (uv required, ADR-015):
 
 ```
 uv sync
-uv run pytest                    # 102 tests
+uv run pytest                    # 175 tests; the 7 integration tests use the compose database (ptc_test)
 uv run ruff check .
 uv run ptc check                 # committed agreement, generated data and manifest equal regeneration
-uv run ptc render-agreement      # regenerate corpus/cgma-2026.1.md
-uv run ptc generate-data         # regenerate data/generated/
-uv run ptc build-manifest        # regenerate evals/cases/manifest.yaml
+uv run ptc migrate               # tables, audit triggers, LangGraph checkpoint tables
+uv run ptc seed [--reset]        # 22 timecards, 10 deal memos; reset erases cases, audit and checkpoints
+uv run ptc ingest-corpus         # 106 chunks; downloads the embedding model once (about 67 MB)
+uv run ptc smoke-llm             # one real structured call; prints the rate-limit headers
+uv run ptc showcase --decision return [--scenario SC-03] [--message ...]
+uv run ptc serve                 # API on http://127.0.0.1:8000/docs
+uv run ptc render-agreement | generate-data | build-manifest
 ```
 
-From the repository root:
-
-```
-bash .claude/hooks/tests/run.sh  # 86 git guard cases
-```
+API (demo steps 1 to 3): `POST /ingest {"week_ending": "2026-03-14"}`, `GET /queue`, `GET /cases/{id}` (includes `output_status` per LLM output and the checkpoint id), `GET /passages/{citation_key}`, `POST /cases/{id}/decide {"action", "actor", "message"}`, `GET /cases/{id}/audit`.
 
 ## Known gaps
 
-- No database, API, graph, LLM adapter or UI yet (Iteration 2 onward).
-- `Timecard` and `TimecardDay` live in the generator module and the policy decision is inlined in the expectation oracle; both move to shared modules at the start of Iteration 2 (carried-forward review finding).
-- Deal memos are YAML only; the retrieval corpus for deal memos (chunks with citation keys) is built in P1.I2.S3.
-- Custom validator agents were not registered in the bootstrap session; they were run as general-purpose agents loading the definitions. New sessions can invoke them directly.
+- Real-LLM acceptance run not yet performed (invalid key); the provider path is exercised up to the 401 and routes to `needs_human_review`.
+- Only MEAL_PERIOD is wired in the engine (`engine/rules.py`); the oracle and the manifest already cover all six rules (Iteration 5).
+- No evaluation harness or gate (Iteration 3), no UI (Iteration 4), no tracing (Iteration 6); the API container in compose is defined but the one-command start with seed is Iteration 6.
+- The Anthropic adapter is untested (optional provider).
+- No authentication: the approver's identity is the `actor` field of the decision request.
 
 ## Risks
 
-- Schedule: five iterations remain for the two-week target; the vertical slice (ADR-005) is the mitigation.
-- The penalty schedule decision (OD-07) touches the agreement text, data and manifest; deciding it late means regenerating prompts and eval baselines.
-- LLM judge calibration (ADR-003) may need more hand-labeled cases than planned.
+- Free-tier token budget: three structured calls per case at low reasoning effort; a full week ingest is paced at 30 requests per minute. The Iteration 3 harness over 18 cases (54 calls plus the judge) must respect the daily limits; batch runs may need to spread over time.
+- Model quality: a 20-billion-parameter open model must keep every number verbatim and cite only given keys; the stray-number and citation validators route failures to human review, so the gate in Iteration 3 may show a lower pass rate than a larger model would. Switching models is configuration (ADR-016) but re-baselines the gate.
+- Schedule: four iterations remain for the two-week target.

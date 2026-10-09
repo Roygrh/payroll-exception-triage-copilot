@@ -11,7 +11,6 @@ agreement:
   effective_to: 2026-12-31
   parties:
     guild: Crew Guild
-    guild_local: Local 11
     employers: Alliance of Independent Production Employers
   citation_prefix: CGMA-2026.1
 
@@ -46,6 +45,13 @@ overtime:                       # calculated for pay, never an exception (ADR-01
 
 plausibility:
   max_day_hours: 20.0           # a day longer than this is treated as a data problem (return)
+
+queue:                          # queue priority (domain model, section 3; code-owned business rule)
+  urgency_business_days: 1      # payroll run within this many business days of the queue date is urgent
+  urgency_weight: 3
+  severity_weight: 2            # multiplies the severity rank (approve 1, return 2, escalate 3)
+  amount_tier_thresholds_usd: [25.00, 100.00]   # tier 0 below the first, 1 below the second, 2 otherwise
+  max_days_late_points: 5       # business days since the week ending, capped
 
 schedule_a:                     # fictitious hourly scale by occupation code
   - code: "4110"

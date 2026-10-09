@@ -76,7 +76,7 @@ Effective-date filtering and permission-filtered retrieval are deferred to Phase
 ## 8. Phases
 
 **Phase 1 (demo-ready, target about two weeks)**
-- LLM functions 1 to 3, one provider (Anthropic, ADR-002) behind a versioned provider-agnostic adapter; switch by configuration.
+- LLM functions 1 to 3, one default provider (gpt-oss-20b on GroqCloud free tier, ADR-016) behind a versioned provider-agnostic adapter (ADR-002); other OpenAI-compatible endpoints and Anthropic by configuration.
 - Corpus: one agreement (one version) plus six deal memos. Rule engine with six rules.
 - UI: prioritized exception queue plus detail view (timecard, explanation with clickable citations, proposal, draft message) plus human-in-the-loop buttons.
 - Evals: 18 cases with known resolution plus a two-tier gate (ADR-003) that blocks deployment when it fails.
@@ -117,7 +117,7 @@ To be able to say in an interview: "I built a working reference of exception tri
 | Topic | Original brief | Applied here | Decision |
 | --- | --- | --- | --- |
 | Evidence status of the problem | Stated as a conclusion | Grounded synthetic problem; the exception-queue pain is a hypothesis; volumes unknown | ADR-001 |
-| LLM provider in Phase 1 | Anthropic or one other named provider | Anthropic only, behind a versioned adapter | ADR-002 |
+| LLM provider in Phase 1 | Anthropic or one other named provider | Default gpt-oss-20b on GroqCloud (free tier) through an OpenAI-compatible adapter; Anthropic optional behind the same versioned interface | ADR-002, ADR-016 |
 | Evaluation gate | Gate blocks if not all cases pass | Two tiers: deterministic checks at 100%, quality checks by threshold with an LLM judge | ADR-003 |
 | Tracing | OpenTelemetry plus Langfuse (hosting unspecified) | Langfuse Cloud, US region, in Phase 1; self-hosting in Phase 2 | ADR-004 |
 | Build order | Not specified | Vertical slice MEAL_PERIOD end to end first | ADR-005 |
@@ -127,6 +127,7 @@ To be able to say in an interview: "I built a working reference of exception tri
 | Who decides the proposed action | LLM proposes | Code owns the action policy; the LLM proposes and justifies; mismatch goes to human review | ADR-009 |
 | Overtime rules | Daily and weekly overtime listed among detection rules | Overtime is calculated, never an exception; only a workday over 12 h raises EXTENDED_DAY | ADR-010 |
 | Retrieval filters | Effective-date and permission filtering in Function 1 (Phase 1) | Deferred to Phase 2; schema fields exist from day one | ADR-011 |
+| Embeddings | Not specified | Small local open-source model, no embeddings API; hybrid retrieval fused by reciprocal rank fusion | ADR-017 |
 | System of record | Not addressed | The repository (docs/) is the durable system of record | ADR-012 |
 | Checkpointer and frontend tooling | Not specified | LangGraph checkpointer on the same PostgreSQL 16 instance; React with TypeScript and Vite | ADR-013 |
 | Git guard | Policy only | Policy plus a PreToolUse hook that blocks state-modifying git commands | ADR-014 |

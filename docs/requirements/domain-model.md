@@ -10,7 +10,7 @@ Everything in this document is fictitious except where marked. Numeric values ar
 | Code | CGMA |
 | Version | 2026.1 |
 | Effective | 2026-01-01 to 2026-12-31 |
-| Parties (fictitious) | The Crew Guild and the Alliance of Independent Production Employers |
+| Parties (fictitious) | The Crew Guild and the Alliance of Independent Production Employers (no local number; OD-08 closed in Iteration 2) |
 | Citation key format | `CGMA-2026.1-<section>`, for example `CGMA-2026.1-8.2`; schedules cite as `CGMA-2026.1-SCH-A` and `CGMA-2026.1-SCH-B` |
 
 ### Outline (15 to 20 pages when rendered)
@@ -55,6 +55,11 @@ All fictitious except the eligibility deadline.
 | `overtime.weekly_multiplier` | 1.5 | calculation only |
 | `plausibility.max_day_hours` | 20.0 | MEAL_PERIOD, EXTENDED_DAY and REST_PERIOD plausibility (approve versus return); agreement 7.7 |
 | `payroll.time_unit_hours` | 0.1 | timecard recording unit (tenths of an hour); agreement 1.3 |
+| `queue.urgency_business_days` | 1 | queue priority: the payroll run within this many business days is urgent |
+| `queue.urgency_weight` | 3 | queue priority weight of urgency |
+| `queue.severity_weight` | 2 | queue priority weight of the severity rank |
+| `queue.amount_tier_thresholds_usd` | [25.00, 100.00] | queue priority amount tiers (0 below the first, 1 below the second, 2 otherwise) |
+| `queue.max_days_late_points` | 5 | queue priority cap on business days since the week ending |
 
 ## 3. Exception rules
 
@@ -84,9 +89,9 @@ All fictitious except the eligibility deadline.
 - Premium lines (extended day, rest invasion) are the full pay for the affected hours at the multiplied rate (hours x hourly rate x multiplier); they replace, and are not added to, the base pay for those hours (agreement 6.2 and 6.5). The pay summary built in Iteration 2 must honor this so the manifest facts `premium_usd` and `invasion_pay_usd` keep their meaning. Meal penalties are flat amounts added on top (agreement 8.3).
 - Plausibility (for approve versus return, applied to MEAL_PERIOD, EXTENDED_DAY and REST_PERIOD): a premium finding is plausible when all four entries exist, are chronological, the meal lasted at least 30 minutes and the elapsed day is not above 20.0 hours (`plausibility.max_day_hours`); otherwise the day is returned.
 
-### Queue priority (code-owned business rule, proposed; final formula in Iteration 2)
+### Queue priority (code-owned business rule, implemented in Iteration 2 with its weights in the YAML `queue` block; OD-01 confirmation pending)
 
-Priority score = 3 x payroll-run urgency (1 if the run is within one business day, else 0) + 2 x severity rank (escalate 3, return 2, approve 1) + amount tier (0 under 25 USD, 1 under 100 USD, 2 otherwise) + min(days late, 5). Higher is worked first; ties break by week ending (older first).
+Priority score = urgency_weight x payroll-run urgency (1 if the run is within `urgency_business_days` of the queue date, else 0) + severity_weight x severity rank (escalate 3, return 2, approve 1) + amount tier (0 below the first threshold, 1 below the second, 2 otherwise) + min(business days since the week ending, max_days_late_points). Higher is worked first; ties break by week ending (older first). Implementation: `backend/src/payroll_triage/engine/priority.py`.
 
 ## 4. Schedule A (fictitious hourly scale)
 
@@ -104,7 +109,7 @@ Priority score = 3 x payroll-run urgency (1 if the run is within one business da
 | --- | --- |
 | Production | "Northlight Harbor", season 2, episodic drama |
 | Employer of record | Harborline Productions LLC (fictitious) |
-| Guild | Crew Guild, Local 11 (fictitious) |
+| Guild | Crew Guild (fictitious) |
 | Demo week | Week ending 2026-03-14 (producer week 2026-03-08) |
 | Payroll run | Tuesday 2026-03-17 (for queue urgency) |
 | Departments | Camera, Production, Property, Transportation |

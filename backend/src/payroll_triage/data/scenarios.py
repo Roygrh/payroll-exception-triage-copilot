@@ -10,6 +10,9 @@ from typing import Any
 import yaml
 
 from payroll_triage.paths import scenarios_path
+from payroll_triage.policy import ACTIONS as _ACTIONS
+from payroll_triage.policy import SEVERITY as _SEVERITY
+from payroll_triage.timecards import TIME_FIELDS as _TIME_FIELDS
 
 WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri")
 DAY_KINDS = {
@@ -21,9 +24,10 @@ DAY_KINDS = {
     "wrap_before_call",
     "explicit",
 }
-TIME_FIELDS = ("call", "meal_out", "meal_in", "wrap")
-ACTIONS = ("none", "approve", "return", "escalate")
-SEVERITY = {"approve": 1, "return": 2, "escalate": 3}
+# Re-exported for callers of the catalog; the definitions live in the shared modules.
+TIME_FIELDS = _TIME_FIELDS
+ACTIONS = _ACTIONS
+SEVERITY = _SEVERITY
 
 
 class ScenarioError(ValueError):
@@ -87,6 +91,7 @@ class Catalog:
     payroll_run_date: dt.date
     demo_week_ending: dt.date
     queue_status: str
+    demo_approver: str
     holidays: tuple[dt.date, ...]
     production: dict[str, Any]
     labels: dict[str, dict[str, str]]
@@ -177,6 +182,7 @@ def parse_catalog(raw: dict[str, Any]) -> Catalog:
         payroll_run_date=_date(raw["payroll_run_date"]),
         demo_week_ending=_date(raw["demo_week_ending"]),
         queue_status=raw["queue_status"],
+        demo_approver=str(raw["demo_approver"]),
         holidays=tuple(_date(h) for h in raw.get("holidays") or ()),
         production=dict(raw["production"]),
         labels={k: dict(v) for k, v in raw["labels"].items()},
@@ -210,6 +216,9 @@ def parse_catalog(raw: dict[str, Any]) -> Catalog:
         raise ScenarioError("labels.day_type.work is required")
     if "stage" not in catalog.labels.get("work_location", {}):
         raise ScenarioError("labels.work_location.stage is required")
+    after = catalog.labels.get("timecard_status_after", {})
+    if set(after) != {"approve", "return"}:
+        raise ScenarioError("labels.timecard_status_after must map approve and return")
     for key in ("hire_state", "hire_city", "work_state", "primary_work_city"):
         if key not in catalog.filler_location:
             raise ScenarioError(f"filler_location.{key} is required")

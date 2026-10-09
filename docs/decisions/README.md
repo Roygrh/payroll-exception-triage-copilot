@@ -5,7 +5,7 @@ MADR style: context, decision, consequences, status. New decisions get the next 
 | ADR | Title | Status | Date |
 | --- | --- | --- | --- |
 | [ADR-001](ADR-001-evidence-profile-e3.md) | Evidence profile E3: grounded synthetic problem, synthetic data | Accepted | 2026-10-07 |
-| [ADR-002](ADR-002-single-llm-provider-behind-adapter.md) | Single LLM provider in Phase 1 behind a versioned, provider-agnostic adapter | Accepted | 2026-10-07 |
+| [ADR-002](ADR-002-single-llm-provider-behind-adapter.md) | Single LLM provider in Phase 1 behind a versioned, provider-agnostic adapter | Superseded by ADR-016 (provider choice); adapter interface still in force | 2026-10-07 |
 | [ADR-003](ADR-003-two-tier-evaluation-gate.md) | Two-tier evaluation gate | Accepted | 2026-10-07 |
 | [ADR-004](ADR-004-langfuse-cloud-tracing.md) | Langfuse Cloud (US region) for Phase 1 tracing; self-hosting in Phase 2 | Accepted | 2026-10-07 |
 | [ADR-005](ADR-005-vertical-slice-first.md) | Vertical slice first: MEAL_PERIOD end to end | Accepted | 2026-10-07 |
@@ -19,6 +19,8 @@ MADR style: context, decision, consequences, status. New decisions get the next 
 | [ADR-013](ADR-013-checkpointer-and-frontend-tooling.md) | LangGraph checkpointer on PostgreSQL 16; React, TypeScript and Vite frontend | Accepted | 2026-10-07 |
 | [ADR-014](ADR-014-git-guard-hook.md) | PreToolUse hook blocks state-modifying git commands | Accepted | 2026-10-07 |
 | [ADR-015](ADR-015-python-tooling-uv.md) | Python dependency management with uv and the Iteration 1 dependency set | Accepted | 2026-10-07 |
+| [ADR-016](ADR-016-default-llm-provider-openai-compatible-adapter.md) | Default LLM is gpt-oss-20b on GroqCloud through an OpenAI-compatible adapter; other endpoints by configuration; Anthropic optional | Accepted | 2026-10-08 |
+| [ADR-017](ADR-017-local-embeddings-and-hybrid-retrieval.md) | Local open-source embeddings (bge-small-en-v1.5 via fastembed) and hybrid retrieval with reciprocal rank fusion | Accepted | 2026-10-08 |
 
 Template for new records:
 

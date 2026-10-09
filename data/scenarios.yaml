@@ -8,7 +8,8 @@ seed: 20260314
 as_of_date: 2026-03-16            # the demo date (Monday); used for eligibility overdue and days late
 payroll_run_date: 2026-03-17      # next payroll run; used by the queue urgency rule (Iteration 2)
 demo_week_ending: 2026-03-14
-queue_status: Ready for approver 1
+queue_status: Ready for approver 1   # timecards the queue consumes (domain model, section 6)
+demo_approver: sam.verhoeven         # the demo persona's login (customer workflow, section 8)
 holidays: []                      # recognized holidays inside the data window (none)
 
 production:
@@ -16,11 +17,12 @@ production:
   title: Northlight Harbor
   season: 2
   employer: Harborline Productions LLC
-  guild: Crew Guild, Local 11
+  guild: Crew Guild
 
 labels:
   day_type: {work: "1-Work", travel: "2-Travel", holiday: "3-Holiday", idle: "4-Idle"}
   work_location: {stage: S-Stage, local: L-Local location, distant: D-Distant location}
+  timecard_status_after: {approve: Ready for approver 2, return: Rejected}   # escalate: unchanged
 
 # Construction templates. "clean" is the reference day; the other kinds are built relative to it.
 clean_day: {call: 7.0, meal_out: 12.0, meal_in: 12.5, wrap: 15.5}   # 8.0 hours worked

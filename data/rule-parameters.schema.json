@@ -15,7 +15,8 @@
     "overtime",
     "plausibility",
     "schedule_a",
-    "rules"
+    "rules",
+    "queue"
   ],
   "properties": {
     "agreement": {
@@ -56,15 +57,10 @@
           "additionalProperties": false,
           "required": [
             "guild",
-            "guild_local",
             "employers"
           ],
           "properties": {
             "guild": {
-              "type": "string",
-              "minLength": 3
-            },
-            "guild_local": {
               "type": "string",
               "minLength": 3
             },
@@ -314,6 +310,48 @@
               }
             }
           }
+        }
+      }
+    },
+    "queue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "urgency_business_days",
+        "urgency_weight",
+        "severity_weight",
+        "amount_tier_thresholds_usd",
+        "max_days_late_points"
+      ],
+      "properties": {
+        "urgency_business_days": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "urgency_weight": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "severity_weight": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "amount_tier_thresholds_usd": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "items": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "max_days_late_points": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 30
         }
       }
     }

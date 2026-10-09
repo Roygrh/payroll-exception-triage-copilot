@@ -17,5 +17,6 @@ Payroll is audited. A number in an explanation ("the meal began 6.8 hours after 
 ## Consequences
 
 - Facts schemas are part of the engine's public contract and are versioned with the eval cases.
+- Runtime check (Iteration 2): the validate node extracts every number from each generated output and allows only the numbers present in the facts' values, in the case context shown to the model (dates and identifiers) and in the passages the output cited plus the passages of the finding's own sections (the sections that define the rule are always in scope even when the model did not cite them in that particular output). Any other number routes the case to needs human review.
 - Explanations remain grounded even when a model is swapped (ADR-002), because the numbers never depended on the model.
 - The model's job is narrower and easier to evaluate: map facts and passages to clear language, propose and justify, and draft.

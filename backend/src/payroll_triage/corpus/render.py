@@ -98,7 +98,6 @@ def render_agreement(params: RuleParameters | None = None, template_dir: Path | 
             "effective_from": a.effective_from.isoformat(),
             "effective_to": a.effective_to.isoformat(),
             "guild": a.guild,
-            "guild_local": a.guild_local,
             "employers": a.employers,
             "citation_prefix": a.citation_prefix,
         },

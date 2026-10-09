@@ -11,7 +11,7 @@ from __future__ import annotations
 import datetime as dt
 import json
 import random
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -19,7 +19,6 @@ from typing import Any
 from payroll_triage.calc import tenths
 from payroll_triage.corpus.deal_memos import DealMemo, load_deal_memos, parse_deal_memo
 from payroll_triage.data.scenarios import (
-    TIME_FIELDS,
     WEEKDAYS,
     Catalog,
     DaySpec,
@@ -29,44 +28,10 @@ from payroll_triage.data.scenarios import (
 )
 from payroll_triage.params import RuleParameters, get_parameters
 from payroll_triage.paths import generated_dir
+from payroll_triage.timecards import Timecard, TimecardDay
 
 TIMECARDS_FILE = "timecards.json"
 FILLER_MEMOS_FILE = "filler-deal-memos.json"
-
-
-@dataclass(frozen=True)
-class TimecardDay:
-    date: dt.date
-    weekday: str
-    day_type: str
-    work_location: str
-    call: float | None
-    meal_out: float | None
-    meal_in: float | None
-    wrap: float | None
-
-    def is_complete(self) -> bool:
-        return all(getattr(self, f) is not None for f in TIME_FIELDS)
-
-    def is_chronological(self) -> bool:
-        if not self.is_complete():
-            return False
-        return self.call <= self.meal_out <= self.meal_in <= self.wrap  # type: ignore[operator]
-
-
-@dataclass(frozen=True)
-class Timecard:
-    id: str
-    scenario_id: str
-    employee_id: str
-    employee_name: str
-    deal_memo_id: str
-    occupation_code: str
-    department: str
-    week_ending: dt.date
-    producer_week: dt.date
-    status: str
-    days: tuple[TimecardDay, ...]
 
 
 @dataclass(frozen=True)
@@ -321,7 +286,7 @@ def timecards_document(data: GeneratedData) -> dict[str, Any]:
             "seed": data.seed,
             "as_of_date": data.as_of_date,
             "count": len(data.timecards),
-            "timecards": [asdict(t) for t in data.timecards],
+            "timecards": [t.to_dict() for t in data.timecards],
         }
     )
 
@@ -370,7 +335,7 @@ def check_generated(data: GeneratedData | None = None) -> list[str]:
     return problems
 
 
-def load_generated_timecards(path: Path | None = None) -> list[dict[str, Any]]:
+def load_generated_timecards(path: Path | None = None) -> list[Timecard]:
     path = path or generated_dir() / TIMECARDS_FILE
     with path.open("r", encoding="utf-8") as fh:
-        return json.load(fh)["timecards"]
+        return [Timecard.from_dict(t) for t in json.load(fh)["timecards"]]

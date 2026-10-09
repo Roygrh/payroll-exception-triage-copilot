@@ -14,13 +14,12 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Any
 
-from payroll_triage import calc
+from payroll_triage import calc, policy
 from payroll_triage.corpus.deal_memos import DealMemo, scale_shortfall
-from payroll_triage.data.generator import Timecard, TimecardDay
-from payroll_triage.data.scenarios import SEVERITY, TIME_FIELDS
 from payroll_triage.params import RuleParameters
+from payroll_triage.timecards import DEFAULT_WORK_DAY_TYPE, TIME_FIELDS, Timecard, TimecardDay
 
-APPROVE, RETURN, ESCALATE = "approve", "return", "escalate"
+APPROVE, RETURN, ESCALATE = policy.APPROVE, policy.RETURN, policy.ESCALATE
 
 
 @dataclass(frozen=True)
@@ -54,19 +53,12 @@ def _keys(params: RuleParameters, rule_id: str) -> tuple[str, ...]:
     )
 
 
-def _day_plausible(day: TimecardDay, params: RuleParameters) -> bool:
-    if not day.is_chronological():
-        return False
-    assert day.call is not None and day.wrap is not None
-    return calc.tenths(day.wrap - day.call) <= params.plausibility.max_day_hours
-
-
-DEFAULT_WORK_DAY_TYPE = "1-Work"
+_day_plausible = policy.day_is_plausible
 
 
 def work_days(tc: Timecard, work_day_type: str = DEFAULT_WORK_DAY_TYPE) -> list[TimecardDay]:
     """Only work days are evaluated by the rules (domain model, section 6)."""
-    return [d for d in tc.days if d.day_type == work_day_type]
+    return tc.work_days(work_day_type)
 
 
 def completeness_findings(
@@ -83,7 +75,7 @@ def completeness_findings(
                     rule_id=rule,
                     section=params.rule(rule).section,
                     citation_keys=_keys(params, rule),
-                    policy_action=RETURN,
+                    policy_action=policy.policy_action(policy.completeness_situation()),
                     day_date=day.date,
                     facts={
                         "missing_entries": missing,
@@ -103,15 +95,13 @@ def meal_findings(
     for day in work_days(tc, work_day_type):
         if not day.is_chronological():
             continue
+        if day.is_no_meal_day(params):
+            # Dismissed before the meal deadline (agreement 7.4 and 8.7): no finding.
+            continue
         mf = calc.meal_facts(day.call, day.meal_out, day.meal_in, params)  # type: ignore[arg-type]
         if not (mf.is_late or mf.is_short):
             continue
-        if mf.is_short:
-            action = RETURN
-        elif _day_plausible(day, params):
-            action = APPROVE
-        else:
-            action = RETURN
+        action = policy.policy_action(policy.meal_situation(mf, _day_plausible(day, params)))
         out.append(
             ExpectedFinding(
                 rule_id=rule,
@@ -152,7 +142,9 @@ def extended_day_findings(
                 rule_id=rule,
                 section=params.rule(rule).section,
                 citation_keys=_keys(params, rule),
-                policy_action=APPROVE if _day_plausible(day, params) else RETURN,
+                policy_action=policy.policy_action(
+                    policy.premium_situation(_day_plausible(day, params))
+                ),
                 day_date=day.date,
                 facts=_facts(
                     hf,
@@ -191,7 +183,7 @@ def rest_findings(
                 rule_id=rule,
                 section=params.rule(rule).section,
                 citation_keys=_keys(params, rule),
-                policy_action=APPROVE if plausible else RETURN,
+                policy_action=policy.policy_action(policy.premium_situation(plausible)),
                 day_date=nxt.date,
                 facts=_facts(
                     rf,
@@ -218,7 +210,7 @@ def scale_findings(memo: DealMemo, params: RuleParameters) -> list[ExpectedFindi
             rule_id=rule,
             section=params.rule(rule).section,
             citation_keys=_keys(params, rule),
-            policy_action=ESCALATE,
+            policy_action=policy.policy_action(policy.compliance_situation()),
             day_date=None,
             facts={
                 "occupation_code": memo.occupation_code,
@@ -249,7 +241,7 @@ def eligibility_findings(
             rule_id=rule,
             section=params.rule(rule).section,
             citation_keys=_keys(params, rule),
-            policy_action=ESCALATE,
+            policy_action=policy.policy_action(policy.compliance_situation()),
             day_date=None,
             facts=_facts(
                 ef,
@@ -280,8 +272,4 @@ def expected_findings(
 
 def combined_action(findings: Iterable[ExpectedFinding]) -> str:
     """Most severe policy action wins (ADR-009); 'none' when there are no findings."""
-    best = "none"
-    for f in findings:
-        if best == "none" or SEVERITY[f.policy_action] > SEVERITY[best]:
-            best = f.policy_action
-    return best
+    return policy.combined_action(f.policy_action for f in findings)

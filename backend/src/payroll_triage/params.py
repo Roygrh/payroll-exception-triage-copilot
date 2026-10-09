@@ -33,7 +33,6 @@ class AgreementInfo:
     effective_from: dt.date
     effective_to: dt.date
     guild: str
-    guild_local: str
     employers: str
     citation_prefix: str
 
@@ -91,6 +90,15 @@ class PlausibilityParams:
 
 
 @dataclass(frozen=True)
+class QueueParams:
+    urgency_business_days: int
+    urgency_weight: int
+    severity_weight: int
+    amount_tier_thresholds_usd: tuple[Decimal, ...]
+    max_days_late_points: int
+
+
+@dataclass(frozen=True)
 class ScaleEntry:
     code: str
     occupation: str
@@ -115,6 +123,7 @@ class RuleParameters:
     eligibility: EligibilityParams
     overtime: OvertimeParams
     plausibility: PlausibilityParams
+    queue: QueueParams
     schedule_a: tuple[ScaleEntry, ...]
     rules: dict[str, RuleRef]
     raw: dict[str, Any]
@@ -177,6 +186,9 @@ def _semantic_checks(p: RuleParameters) -> None:
         problems.append("extended_day.threshold_hours must exceed overtime.daily_after_hours")
     if p.meal.deadline_hours >= p.extended_day.threshold_hours:
         problems.append("meal.deadline_hours must be below extended_day.threshold_hours")
+    tiers = list(p.queue.amount_tier_thresholds_usd)
+    if tiers != sorted(tiers) or len(tiers) != len(set(tiers)):
+        problems.append("queue.amount_tier_thresholds_usd must be strictly increasing")
     codes = [e.code for e in p.schedule_a]
     if len(codes) != len(set(codes)):
         problems.append("schedule_a has duplicate occupation codes")
@@ -217,7 +229,6 @@ def parse_parameters(raw: dict[str, Any], schema: dict[str, Any]) -> RuleParamet
             effective_from=_date(a["effective_from"]),
             effective_to=_date(a["effective_to"]),
             guild=a["parties"]["guild"],
-            guild_local=a["parties"]["guild_local"],
             employers=a["parties"]["employers"],
             citation_prefix=a["citation_prefix"],
         ),
@@ -241,6 +252,15 @@ def parse_parameters(raw: dict[str, Any], schema: dict[str, Any]) -> RuleParamet
         ),
         overtime=OvertimeParams(**{k: float(v) for k, v in raw["overtime"].items()}),
         plausibility=PlausibilityParams(max_day_hours=float(raw["plausibility"]["max_day_hours"])),
+        queue=QueueParams(
+            urgency_business_days=int(raw["queue"]["urgency_business_days"]),
+            urgency_weight=int(raw["queue"]["urgency_weight"]),
+            severity_weight=int(raw["queue"]["severity_weight"]),
+            amount_tier_thresholds_usd=tuple(
+                _money(v) for v in raw["queue"]["amount_tier_thresholds_usd"]
+            ),
+            max_days_late_points=int(raw["queue"]["max_days_late_points"]),
+        ),
         schedule_a=tuple(
             ScaleEntry(
                 code=str(e["code"]),

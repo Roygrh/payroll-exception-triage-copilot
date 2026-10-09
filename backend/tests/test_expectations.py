@@ -8,7 +8,6 @@ import pytest
 
 from payroll_triage.calc import tenths
 from payroll_triage.corpus.deal_memos import load_deal_memos
-from payroll_triage.data.generator import Timecard, TimecardDay
 from payroll_triage.evals.expectations import (
     combined_action,
     completeness_findings,
@@ -18,6 +17,7 @@ from payroll_triage.evals.expectations import (
     rest_findings,
 )
 from payroll_triage.params import load_parameters
+from payroll_triage.timecards import Timecard, TimecardDay
 
 WORK = "1-Work"
 

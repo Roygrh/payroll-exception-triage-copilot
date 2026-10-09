@@ -1,6 +1,6 @@
 # ADR-002: Single LLM provider in Phase 1 behind a versioned, provider-agnostic adapter
 
-Status: Accepted
+Status: Superseded by ADR-016 on the provider choice (2026-10-08); the adapter interface decision (versioned, provider-agnostic `LLMAdapter` v1) remains in force
 Date: 2026-10-07
 
 ## Context
