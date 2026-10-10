@@ -24,3 +24,10 @@ ADR-002 chose Anthropic as the single Phase 1 provider behind a versioned adapte
 - Free-tier budgets bound the demo: three structured calls per case, about 3,000 to 5,000 tokens per case; the pacing keeps a week ingest under the per-minute limits at the cost of wall-clock time.
 - The `openai` SDK is not a dependency; `anthropic` is installed for the optional adapter. The Phase 2 gateway (fallback, cost and latency control) still sits behind the same v1 interface.
 - ADR-002's "Anthropic" wording in the brief, the architecture overview and the plan is updated to reference this record.
+
+### Update of 2026-10-09 (first real run)
+
+- **Live limits confirmed** from the response headers of the first successful call (2026-10-08, author's account): 1,000 requests per day and 8,000 tokens per minute for `openai/gpt-oss-20b`. The daily token limit is not reported in the headers.
+- **Measured cost:** the SC-03 showcase used about 10,000 tokens per case across three calls (about 3,100 to 3,500 input tokens each), twice the estimate above and more than one minute's token budget, so the third call needed a retry. ADR-018 (Proposed) reduces calls and input size; Iteration 2b targets at most 5,000 tokens per MEAL_PERIOD case.
+- **The GroqCloud free tier stays the default provider** so that anyone can run the repository without a payment method. Anthropic and OpenAI remain optional providers by configuration. Their APIs are billed per use and are separate from consumer chat subscriptions: a chat subscription does not include API access.
+- **A local model through Ollama stays a Phase 2 option (P2.I7).** The endpoint works by configuration, but it is not tested or supported in Phase 1, and the hardware needed to run a model of adequate quality locally is not yet known.

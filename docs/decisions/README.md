@@ -21,6 +21,7 @@ MADR style: context, decision, consequences, status. New decisions get the next 
 | [ADR-015](ADR-015-python-tooling-uv.md) | Python dependency management with uv and the Iteration 1 dependency set | Accepted | 2026-10-07 |
 | [ADR-016](ADR-016-default-llm-provider-openai-compatible-adapter.md) | Default LLM is gpt-oss-20b on GroqCloud through an OpenAI-compatible adapter; other endpoints by configuration; Anthropic optional | Accepted | 2026-10-08 |
 | [ADR-017](ADR-017-local-embeddings-and-hybrid-retrieval.md) | Local open-source embeddings (bge-small-en-v1.5 via fastembed) and hybrid retrieval with reciprocal rank fusion | Accepted | 2026-10-08 |
+| [ADR-018](ADR-018-draft-after-decision-and-token-efficiency.md) | Draft the message after the human decision; merge explain and propose; limit the passages sent to the model | Proposed (Iteration 2b) | 2026-10-09 |
 
 Template for new records:
 
