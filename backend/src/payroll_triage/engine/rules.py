@@ -107,6 +107,7 @@ def meal_period_rule(
             hours_to_meal=mf.hours_to_meal,
             meal_minutes=mf.meal_minutes,
             minutes_late=mf.minutes_late,
+            hours_late=mf.hours_late,
             increments=mf.increments,
             penalty_usd=mf.penalty_usd,
             is_late=mf.is_late,

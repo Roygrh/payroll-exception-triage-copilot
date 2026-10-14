@@ -17,7 +17,7 @@ from payroll_triage.graph.service import TriageService
 from payroll_triage.params import load_parameters
 from payroll_triage.retrieval.chunker import build_corpus
 from payroll_triage.runtime import Runtime, demo_clock
-from tests.support.fake_adapter import FakeAdapter, good_outputs
+from tests.support.fake_adapter import FakeAdapter, good_draft, good_outputs
 from tests.support.memory import MemoryRetriever, MemoryStore
 
 
@@ -33,8 +33,10 @@ def client(monkeypatch):
     timecards = {t.id: t for t in load_generated_timecards()}
     adapter = FakeAdapter(
         {
-            k: (lambda r, k=k: good_outputs("CGMA-2026.1-8.2", _memo(r), _action(r))[k])
-            for k in ("explain", "propose", "draft")
+            "explain_propose": lambda r: good_outputs("CGMA-2026.1-8.2", _memo(r), _action(r))[
+                "explain_propose"
+            ],
+            "draft": good_draft("CGMA-2026.1-8.2"),
         }
     )
     deps = Deps(
@@ -81,15 +83,37 @@ def test_demo_steps_one_to_three_over_the_api(client):
     assert passage["section"] == "8.2" and passage["version"] == "2026.1"
     assert client.get("/passages/CGMA-2026.1-99.9").status_code == 404
     audit = client.get(f"/cases/{top['id']}/audit").json()
-    assert [e["entry_kind"] for e in audit["entries"]] == ["suggestion"] * 3 + ["validation"]
+    assert [e["entry_kind"] for e in audit["entries"]] == ["suggestion", "validation"]
+    assert detail["draft"] is None and detail["output_status"]["draft"] == "missing"
 
-    # step 3: edit the draft and return
-    edited = detail["draft"]["body"] + " Edited by the approver."
-    bad = client.post(f"/cases/{top['id']}/decide", json={"action": "return", "actor": "sam"})
-    assert bad.status_code == 422
-    decided = client.post(
+    # step 3: choose Return, review the drafted message, edit, confirm (ADR-018)
+    with_message = client.post(
         f"/cases/{top['id']}/decide",
-        json={"action": "return", "actor": "sam.verhoeven", "message": edited},
+        json={"action": "return", "actor": "sam.verhoeven", "message": "too early"},
+    )
+    assert with_message.status_code == 422  # the message is confirmed at /message
+    early = client.post(
+        f"/cases/{top['id']}/message", json={"actor": "sam.verhoeven", "message": "x"}
+    )
+    assert early.status_code == 409  # no action chosen yet
+    chosen = client.post(
+        f"/cases/{top['id']}/decide", json={"action": "return", "actor": "sam.verhoeven"}
+    )
+    assert chosen.status_code == 200, chosen.text
+    chosen = chosen.json()
+    assert chosen["waiting_on"] == ["message_checkpoint"] and chosen["draft_status"] == "valid"
+    assert client.get(f"/cases/{top['id']}").json()["chosen_action"] == "return"
+    again = client.post(
+        f"/cases/{top['id']}/decide", json={"action": "approve", "actor": "sam.verhoeven"}
+    )
+    assert again.status_code == 409  # waiting for the message, not for an action
+    edited = chosen["draft"]["body"] + " Edited by the approver."
+    other = client.post(f"/cases/{top['id']}/message", json={"actor": "kim", "message": edited})
+    assert other.status_code == 422  # only the actor who chose the action confirms
+    empty = client.post(f"/cases/{top['id']}/message", json={"actor": "sam.verhoeven"})
+    assert empty.status_code == 422
+    decided = client.post(
+        f"/cases/{top['id']}/message", json={"actor": "sam.verhoeven", "message": edited}
     )
     assert decided.status_code == 200, decided.text
     decided = decided.json()
@@ -98,6 +122,7 @@ def test_demo_steps_one_to_three_over_the_api(client):
     audit = client.get(f"/cases/{top['id']}/audit").json()["entries"]
     assert [e["entry_kind"] for e in audit][-2:] == ["decision", "execution"]
     assert audit[-2]["payload"]["message"] == edited and audit[-2]["actor"] == "sam.verhoeven"
+    assert audit[-2]["payload"]["stage"] == "executed"
     assert (
         client.post(
             f"/cases/{top['id']}/decide", json={"action": "approve", "actor": "sam.verhoeven"}

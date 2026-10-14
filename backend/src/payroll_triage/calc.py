@@ -46,6 +46,7 @@ class MealFacts:
     hours_to_meal: float
     meal_minutes: int
     minutes_late: int
+    hours_late: float
     increments: int
     penalty_usd: Decimal
     is_late: bool
@@ -70,11 +71,13 @@ def meal_facts(call: float, meal_out: float, meal_in: float, params: RuleParamet
     hours_to_meal = tenths(meal_out - call)
     meal_minutes = minutes(tenths(meal_in - meal_out))
     minutes_late = max(0, minutes(hours_to_meal - params.meal.deadline_hours))
+    hours_late = tenths(minutes_late / 60)  # the same delay in hours, so the model never converts
     increments = meal_penalty_increments(minutes_late, params)
     return MealFacts(
         hours_to_meal=hours_to_meal,
         meal_minutes=meal_minutes,
         minutes_late=minutes_late,
+        hours_late=hours_late,
         increments=increments,
         penalty_usd=meal_penalty_amount(increments, params),
         is_late=minutes_late > 0,

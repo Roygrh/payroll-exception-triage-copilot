@@ -12,7 +12,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-FACTS_SCHEMA_VERSION = 1
+FACTS_SCHEMA_VERSION = 2  # 2: hours_late (Iteration 2b)
 
 
 class MealPeriodFacts(BaseModel):
@@ -21,6 +21,9 @@ class MealPeriodFacts(BaseModel):
     hours_to_meal: float = Field(description="Hours from call to meal out, in tenths")
     meal_minutes: int = Field(description="Recorded meal duration in whole minutes")
     minutes_late: int = Field(description="Minutes by which meal out exceeded the deadline")
+    hours_late: float = Field(
+        description="The same delay as minutes_late, in hours (tenths); zero when not late"
+    )
     increments: int = Field(description="Started penalty increments owed for the delay")
     penalty_usd: Decimal = Field(description="Meal penalty owed for the day, USD")
     is_late: bool = Field(description="True when meal out is later than the deadline")

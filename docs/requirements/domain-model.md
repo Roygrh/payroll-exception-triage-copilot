@@ -65,7 +65,7 @@ All fictitious except the eligibility deadline.
 
 | Rule id | Section | Detects | Facts computed by code | Policy action |
 | --- | --- | --- | --- | --- |
-| MEAL_PERIOD | 8.2 (penalty amounts from 8.3 and Schedule B) | First meal out later than 6.0 h after call; or meal duration under 30 min | hours to meal, minutes late, increments, penalty amount; meal duration | Late meal with complete, plausible data: approve (code adds the premium line). Meal under 30 min: return (implausible or mis-punched meal; employee or department head confirms) |
+| MEAL_PERIOD | 8.2 (penalty amounts from 8.3 and Schedule B) | First meal out later than 6.0 h after call; or meal duration under 30 min | hours to meal, minutes late, hours late (the same delay in hours, so the model never converts), increments, penalty amount; meal duration | Late meal with complete, plausible data: approve (code adds the premium line). Meal under 30 min: return (implausible or mis-punched meal; employee or department head confirms) |
 | EXTENDED_DAY | 6.2 | Hours worked in a day over 12.0 | hours worked, hours over threshold, premium at 2.0x | approve (code adds the premium line) |
 | REST_PERIOD | 9.1 (pay from 9.2) | Under 10.0 h between wrap and the next day's call | rest hours, invaded hours, invasion pay at 2.0x | approve (code adds the premium line) |
 | TIME_ENTRY_COMPLETENESS | 7.4 | Missing call, meal out, meal in or wrap on a work day; wrap before call; meal in before meal out | which entries are missing or out of order | return |

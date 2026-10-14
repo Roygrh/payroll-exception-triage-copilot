@@ -33,6 +33,10 @@ CASE_STATUSES = (
 OPEN_STATUSES = ("awaiting_decision", "needs_human_review")
 
 
+class AlreadyExecuted(RuntimeError):
+    """The case left the open statuses before this execution: nothing was written."""
+
+
 def case_id_for(timecard_id: str) -> str:
     return "CASE-" + timecard_id.removeprefix("TC-")
 
@@ -93,7 +97,10 @@ class ExecutionPlan:
     return_message: str | None = None
     recipient_role: str | None = None
     escalation_note: str | None = None
-    escalation_note_source: str | None = None  # "human" | "default"
+    message_source: str | None = None  # "draft_confirmed" | "draft_edited" | "human_written"
+    # The `decision` audit payload (stage executed), written with the effects; the execution
+    # audit entry (the effects) follows it in the same transaction.
+    decision_audit: dict[str, Any] | None = None
     decision_message: str | None = None
     extra: dict[str, Any] = field(default_factory=dict)
 
@@ -116,6 +123,16 @@ class CaseStore(Protocol):
         model: str,
         adapter_version: str,
     ) -> int: ...
+    def record_llm_output(
+        self,
+        case_id: str,
+        contents: dict[str, dict[str, Any]],
+        provider: str,
+        model: str,
+        adapter_version: str,
+        actor: str,
+        llm: dict[str, Any],
+    ) -> tuple[dict[str, int], int]: ...
     def set_suggestion_validation(
         self, suggestion_id: int, status: str, detail: dict[str, Any]
     ) -> None: ...
@@ -268,6 +285,44 @@ class PostgresCaseStore:
             ).fetchone()
         return int(row[0])  # type: ignore[index]
 
+    def record_llm_output(
+        self,
+        case_id: str,
+        contents: dict[str, dict[str, Any]],
+        provider: str,
+        model: str,
+        adapter_version: str,
+        actor: str,
+        llm: dict[str, Any],
+    ) -> tuple[dict[str, int], int]:
+        """One LLM call's output: one suggestion per part and one audit entry, one transaction."""
+        ids: dict[str, int] = {}
+        with self.pool.connection() as conn, conn.transaction():
+            for kind, content in contents.items():
+                row = conn.execute(
+                    "INSERT INTO suggestions (case_id, kind, content, provider, model, "
+                    "adapter_version) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id",
+                    (case_id, kind, _jsonb(content), provider, model, adapter_version),
+                ).fetchone()
+                ids[kind] = int(row[0])  # type: ignore[index]
+            row = conn.execute(
+                "INSERT INTO audit_log (case_id, entry_kind, actor, payload) "
+                "VALUES (%s, 'suggestion', %s, %s) RETURNING id",
+                (
+                    case_id,
+                    actor,
+                    _jsonb(
+                        {
+                            "kinds": list(contents),
+                            "suggestion_ids": ids,
+                            "content": contents,
+                            "llm": llm,
+                        }
+                    ),
+                ),
+            ).fetchone()
+        return ids, int(row[0])  # type: ignore[index]
+
     def set_suggestion_validation(
         self, suggestion_id: int, status: str, detail: dict[str, Any]
     ) -> None:
@@ -288,9 +343,20 @@ class PostgresCaseStore:
         return int(row[0])  # type: ignore[index]
 
     def apply_execution(self, plan: ExecutionPlan) -> dict[str, Any]:
-        """Apply the plan in one transaction; nothing is written if any statement fails."""
+        """Apply the plan in one transaction; nothing is written if any statement fails.
+
+        The first statement moves the case out of the open statuses; when the case is no
+        longer open (already executed), nothing is written and `AlreadyExecuted` is raised,
+        so a retry can never send a second message or add a second pay line."""
         effects: dict[str, Any] = {"action": plan.action, "actor": plan.actor}
         with self.pool.connection() as conn, conn.transaction():
+            moved = conn.execute(
+                "UPDATE cases SET status = %s, updated_at = now() "
+                "WHERE id = %s AND status = ANY(%s) RETURNING id",
+                (plan.case_status_after, plan.case_id, list(OPEN_STATUSES)),
+            ).fetchone()
+            if moved is None:
+                raise AlreadyExecuted(f"case {plan.case_id} is not open; nothing executed")
             row = conn.execute(
                 "INSERT INTO decisions (case_id, actor, action, message) "
                 "VALUES (%s, %s, %s, %s) RETURNING id",
@@ -346,12 +412,22 @@ class PostgresCaseStore:
                     (plan.case_id, plan.escalation_note, plan.actor),
                 ).fetchone()
                 effects["escalation_id"] = int(row[0])  # type: ignore[index]
-                effects["escalation_note_source"] = plan.escalation_note_source
-            conn.execute(
-                "UPDATE cases SET status = %s, updated_at = now() WHERE id = %s",
-                (plan.case_status_after, plan.case_id),
-            )
+            if plan.message_source is not None:
+                effects["message_source"] = plan.message_source
             effects["case_status"] = plan.case_status_after
+            if plan.decision_audit is not None:
+                ids = []
+                for kind, payload in (
+                    ("decision", plan.decision_audit),
+                    ("execution", dict(effects)),
+                ):
+                    row = conn.execute(
+                        "INSERT INTO audit_log (case_id, entry_kind, actor, payload) "
+                        "VALUES (%s, %s, %s, %s) RETURNING id",
+                        (plan.case_id, kind, plan.actor, _jsonb(payload)),
+                    ).fetchone()
+                    ids.append(int(row[0]))  # type: ignore[index]
+                effects["audit_ids"] = ids
         return effects
 
 

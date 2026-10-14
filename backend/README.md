@@ -17,8 +17,11 @@ uv run ptc migrate           # apply SQL migrations and create the LangGraph che
 uv run ptc seed [--reset]    # load generated timecards and deal memos (reset clears cases and checkpoints)
 uv run ptc ingest-corpus     # chunk, embed (local model, downloaded once) and index the corpus
 uv run ptc smoke-llm         # one minimal real call through the configured adapter
-uv run ptc showcase [--scenario SC-03] [--decision return|approve|escalate] [--message ...]
-                             # one scenario end to end with the real LLM, pause, resume, execute, audit
+uv run ptc showcase [--scenario SC-03] --decision approve|return|escalate [--message ...] [--dry-run]
+                             # one scenario end to end with the real LLM, pause, resume, execute, audit;
+                             # return and escalate stop at the message step (unless --message);
+                             # prints tokens per case; --dry-run estimates tokens offline (ADR-019)
+uv run ptc confirm-message --case CASE-... [--actor ...] (--message ... | --accept-draft | --cancel)
 uv run ptc serve             # API on http://127.0.0.1:8000 (docs at /docs)
 ```
 

@@ -63,11 +63,11 @@ Volumes and minutes per exception are unknown and must be measured in discovery.
 | Find the rule | Retrieval over the agreement and deal memo; explanation with clickable citations (LLM) | n/a |
 | Work out what happened | Rule engine facts: hours, minutes late, increments, amounts (code) | n/a |
 | Decide | Policy action from code; LLM proposal with justification; both shown | Human |
-| Write the message | Draft return message (LLM), edited by the human | Human |
+| Write the message | After the human chooses return or escalate: a message drafted for that action (LLM), edited and confirmed by the human; if no valid draft exists, the human writes it (ADR-018) | Human |
 | Prioritize | Queue ordered by amount, days late and payroll-run proximity (code) | n/a |
 | Record | Append-only audit of suggestions, decisions and actions (code) | n/a |
 
-The copilot reads timecards in `Ready for approver 1`, pauses at the human checkpoint, and executes only the human's decision under the human's identity.
+The copilot reads timecards in `Ready for approver 1`, pauses at the human checkpoint, and executes only the human's decision under the human's identity. For a return or an escalation, nothing is sent until the human confirms the message.
 
 ## 8. Demo persona
 

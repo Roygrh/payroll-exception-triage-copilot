@@ -21,7 +21,13 @@ from payroll_triage.corpus.render import citation_keys_in, render_agreement
 from payroll_triage.db.connection import app_pool, checkpointer_pool
 from payroll_triage.db.migrate import apply_migrations, migration_files
 from payroll_triage.db.seed import all_deal_memos, seed
-from payroll_triage.db.store import CaseRecord, ExecutionPlan, PostgresCaseStore, PremiumLine
+from payroll_triage.db.store import (
+    AlreadyExecuted,
+    CaseRecord,
+    ExecutionPlan,
+    PostgresCaseStore,
+    PremiumLine,
+)
 from payroll_triage.graph.build import build_graph
 from payroll_triage.graph.nodes import Deps, retrieval_query
 from payroll_triage.graph.service import TriageService
@@ -170,7 +176,8 @@ def test_audit_log_is_append_only_at_the_database(store, pool):
     assert store.list_audit(case.id)[0]["actor"] == "system"
 
 
-def test_execution_plan_is_atomic(store, pool, params):
+def test_execution_plan_is_atomic_and_runs_once(store, pool, params):
+    store.set_case_status("CASE-AUDIT-TEST", "awaiting_decision", None)
     plan = ExecutionPlan(
         case_id="CASE-AUDIT-TEST",
         timecard_id="TC-EMP-1001-20260221",
@@ -192,13 +199,40 @@ def test_execution_plan_is_atomic(store, pool, params):
     assert effects["premium_total_usd"] == f"{params.meal.penalty_schedule_usd[0]:.2f}"
     assert effects["case_status"] == "approved" and effects["decision_id"] >= 1
     assert store.get_timecard("TC-EMP-1001-20260221").status == "Ready for approver 2"
-    bad = ExecutionPlan(**{**plan.__dict__, "case_status_after": "not-a-status"})
-    with pytest.raises(psycopg.errors.CheckViolation):
+    # A retry or a concurrent duplicate of an executed case writes nothing (ADR-018).
+    with pytest.raises(AlreadyExecuted):
+        store.apply_execution(plan)
+    # A plan that fails after its first inserts writes nothing, not even its decision.
+    store.create_case(
+        CaseRecord(
+            id="CASE-ATOMIC-TEST",
+            timecard_id="TC-EMP-1001-20260307",
+            deal_memo_id="DM-01",
+            week_ending=dt.date(2026, 3, 7),
+            findings=[],
+            policy_action="approve",
+            amount_usd=Decimal("0.00"),
+            priority_score=1,
+            status="awaiting_decision",
+        )
+    )
+    too_large = PremiumLine("MEAL_PERIOD", None, "overflow", Decimal("123456789012.00"))
+    bad = ExecutionPlan(
+        **{
+            **plan.__dict__,
+            "case_id": "CASE-ATOMIC-TEST",
+            "timecard_id": "TC-EMP-1001-20260307",
+            "premium_lines": (too_large,),
+        }
+    )
+    with pytest.raises(psycopg.errors.NumericValueOutOfRange):
         store.apply_execution(bad)
     with pool.connection() as conn:
         count = conn.execute("SELECT count(*) FROM premium_lines").fetchone()[0]
         decisions = conn.execute("SELECT count(*) FROM decisions").fetchone()[0]
-    assert count == 1 and decisions == 1  # the failed plan wrote nothing, not even its decision
+    assert count == 1 and decisions == 1
+    assert store.get_case("CASE-ATOMIC-TEST").status == "awaiting_decision"
+    store.set_case_status("CASE-ATOMIC-TEST", "escalated", None)  # keep the queue empty
     with pool.connection() as conn:
         with pytest.raises(psycopg.errors.RaiseException, match="append-only"):
             conn.execute("TRUNCATE audit_log")
@@ -243,14 +277,8 @@ def test_graph_checkpoint_survives_a_rebuild(url, pool, store, retriever, params
         assert outcome["checkpoint_id_before"] == result["checkpoint_id"]
         assert outcome["checkpoint_id_after"] != result["checkpoint_id"]
         kinds = [a["entry_kind"] for a in store.list_audit(case_id)]
-        assert kinds == [
-            "suggestion",
-            "suggestion",
-            "suggestion",
-            "validation",
-            "decision",
-            "execution",
-        ]
+        assert kinds == ["suggestion", "validation", "decision", "execution"]
+        assert adapter.kinds() == ["explain_propose"]  # approve: no draft call (ADR-018)
         assert store.get_timecard("TC-EMP-1001-20260314").status == "Ready for approver 2"
         assert store.list_queue() == []
     finally:

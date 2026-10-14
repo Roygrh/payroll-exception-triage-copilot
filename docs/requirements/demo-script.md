@@ -14,25 +14,25 @@ Narrative: "A week of timecards for the production comes in. The rule engine det
 
 ## Step 2 (about 3 min): open the top case
 
-Narrative: "The approver opens the top case. The copilot explains the violation with a citation to the agreement article and to the deal memo, shows the proposed action, and a draft return message."
+Narrative: "The approver opens the top case. The copilot explains the violation with a citation to the agreement article and to the deal memo, and shows the proposed action with its justification."
 
-- Action: open the case detail. Show the timecard events, the explanation, click a citation (the agreement passage opens at section 8.2 with the version shown), click the deal memo citation, show the proposed action and justification, show the draft message.
-- Must exist: LangGraph pipeline detect, retrieve, explain, propose, draft, citation validation (It2), detail UI with clickable citations (It4), provider adapter (It2).
+- Action: open the case detail. Show the timecard events, the explanation, click a citation (the agreement passage opens at section 8.2 with the version shown), click the deal memo citation, show the proposed action and justification. No message is drafted yet: it is written after the approver decides, for the action the approver chooses (ADR-018).
+- Must exist: LangGraph pipeline detect, retrieve, explain and propose in one call, citation validation (It2, It2b), detail UI with clickable citations (It4), provider adapter (It2).
 - What to point at: the numbers in the explanation come from the engine, not from the model (ADR-008); the citation key format; the audit entries already written for the suggestions.
 
 ## Step 3 (about 2 min): decide and resume
 
-Narrative: "The approver edits the message and returns the timecard. The graph resumes from the checkpoint; everything lands in the audit log."
+Narrative: "The approver chooses Return. The copilot drafts the correction message for that return; the approver reviews it, edits it and confirms. The graph resumes from the checkpoint; everything lands in the audit log."
 
-- Action: edit the draft, click Return. Show the status change, the resumed graph run (checkpoint id before and after), and the audit log entries: LLM suggestions, human decision with the edited text, executed action with actor and timestamp.
-- Must exist: human checkpoint with interrupt and resume (It2), execute and audit nodes (It2), action buttons (It4).
-- What to point at: the LLM had no write path; the human's identity is the actor; the original draft and the edited message are both in the log.
+- Action: choose Return, review the drafted message, edit, confirm. Show the status change, the resumed graph run (checkpoint id before and after), and the audit log entries: LLM suggestions, the chosen action, human decision with the original draft and the edited text, executed action with actor and timestamp.
+- Must exist: human checkpoint with interrupt and resume (It2), draft after the decision and message confirmation (It2b, ADR-018), execute and audit nodes (It2), action buttons and message editing (It4).
+- What to point at: the LLM had no write path; the message was written for the action the human chose, and nothing is sent until the human confirms it; an approve needs no message and makes no draft call; the human's identity is the actor; the original draft and the edited message are both in the log.
 
 ## Step 4 (about 1.5 min): source conflict
 
 Narrative: "Here is a case where the deal memo and the agreement disagree. The system shows both sources and does not resolve the conflict silently."
 
-- Action: open the SCALE_RATE case (SC-13). Show the deal memo rate next to the Schedule A scale, the explanation citing section 5.1 and Schedule A and article 3, the policy action escalate, and the escalation note.
+- Action: open the SCALE_RATE case (SC-13). Show the deal memo rate next to the Schedule A scale, the explanation citing section 5.1 and Schedule A and article 3, the policy action escalate; choose Escalate and show the escalation note drafted for the specialist, which the approver confirms.
 - Must exist: SCALE_RATE rule and escalation path (It5), deal memo retrieval and dual citation (It2, It5).
 - What to point at: escalation keeps the timecard untouched; a specialist decides; the model proposes but code determines the policy action (ADR-009).
 

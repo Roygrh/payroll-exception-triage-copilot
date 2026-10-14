@@ -2,7 +2,7 @@
 
 A one-page view of the plan for day-to-day use. It takes no decisions: the contract for every step (objective, artifact, acceptance condition, validation) is in [`current-plan.md`](current-plan.md), and where the two differ, the plan wins.
 
-Execution order of Phase 1 (from 2026-10-09): **2b, 4, 3, 5, 6**. The UI comes before the evaluations so that a demo can be recorded early; the demo will be shown as a recorded video and in a live online session. Status as of 2026-10-09.
+Execution order of Phase 1 (from 2026-10-09): **2b, 4, 3, 5, 6**. The UI comes before the evaluations so that a demo can be recorded early; the demo will be shown as a recorded video and in a live online session. Status as of 2026-10-10.
 
 All `ptc` commands run from `backend/` with uv; the database must be up (`docker compose -f deployment/docker-compose.yml up -d db` from the repository root) and the free provider key must be in the root `.env`.
 
@@ -31,12 +31,12 @@ All `ptc` commands run from `backend/` with uv; the database must be up (`docker
 - **Demo value:** demo steps 1 to 3 over the API and the console showcase.
 - **Verify:** `uv run pytest` (175 tests); `uv run ptc smoke-llm` (done 2026-10-08); `uv run ptc serve` and open `http://127.0.0.1:8000/docs`.
 
-### [Iteration 2b: fixes from the first real run and token efficiency](current-plan.md#iteration-2b-fixes-from-the-first-real-run-and-token-efficiency): next
+### [Iteration 2b: fixes from the first real run and token efficiency](current-plan.md#iteration-2b-fixes-from-the-first-real-run-and-token-efficiency): built and validated; real-LLM acceptance (S6) next, by the author
 
 - **Goal:** make the real model pass the slice cleanly and cheaply.
 - **Delivers:** `hours_late` as an engine fact, rejection of bracketed pseudo-references, the message drafted after the human's decision (ADR-018), one merged explain-and-propose call with fewer passages, the audit field fix.
 - **Demo value:** a clean SC-03 approval and an SC-05 return with a correction message written for the return; at most half the tokens per case of the first run.
-- **Verify:** `uv run pytest`; `uv run ptc check`; `uv run ptc showcase --decision approve` (ends approved, no `needs_human_review`); `uv run ptc showcase --scenario SC-05 --decision return` (the message speaks about a return); tokens per case printed and at most 5,000.
+- **Verify:** `uv run pytest` (210 tests); `uv run ptc check`; offline `uv run ptc showcase --scenario SC-05 --decision return --dry-run` (estimated input tokens, no provider call); then the author's S6 run after `uv run ptc seed --reset`: `uv run ptc showcase --decision approve` (ends approved, no `needs_human_review`); `uv run ptc showcase --scenario SC-05 --decision return` (the draft is written for the return; stops at the message step), then `uv run ptc confirm-message --case CASE-EMP-1002-20260314 --accept-draft`; `TOKENS PER CASE` at most 5,000 for both (exact steps in `docs/progress/iterations/iteration-002b.md`).
 
 ### [Iteration 4: UI](current-plan.md#iteration-4-ui): pending (after 2b)
 

@@ -75,6 +75,7 @@ cases:
       hours_to_meal: 6.5
       meal_minutes: 30
       minutes_late: 30
+      hours_late: 0.5
       increments: 1
       penalty_usd: '8.25'
       is_late: true
@@ -112,6 +113,7 @@ cases:
       hours_to_meal: 7.2
       meal_minutes: 30
       minutes_late: 72
+      hours_late: 1.2
       increments: 3
       penalty_usd: '33.00'
       is_late: true
@@ -131,6 +133,7 @@ cases:
       hours_to_meal: 7.2
       meal_minutes: 30
       minutes_late: 72
+      hours_late: 1.2
       increments: 3
       penalty_usd: '33.00'
       is_late: true
@@ -168,6 +171,7 @@ cases:
       hours_to_meal: 5.0
       meal_minutes: 24
       minutes_late: 0
+      hours_late: 0.0
       increments: 0
       penalty_usd: '0.00'
       is_late: false
@@ -466,6 +470,7 @@ cases:
       hours_to_meal: 6.8
       meal_minutes: 30
       minutes_late: 48
+      hours_late: 0.8
       increments: 2
       penalty_usd: '19.25'
       is_late: true
@@ -614,6 +619,7 @@ cases:
       hours_to_meal: 6.5
       meal_minutes: 30
       minutes_late: 30
+      hours_late: 0.5
       increments: 1
       penalty_usd: '8.25'
       is_late: true
@@ -654,6 +660,7 @@ cases:
       hours_to_meal: 5.0
       meal_minutes: 24
       minutes_late: 0
+      hours_late: 0.0
       increments: 0
       penalty_usd: '0.00'
       is_late: false

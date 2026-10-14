@@ -20,7 +20,7 @@ Lookup = Callable[[str], Chunk | None]
 @dataclass(frozen=True)
 class CitationCheck:
     key: str
-    status: str  # "valid" | "unknown_key" | "wrong_version" | "wrong_deal_memo"
+    status: str  # "valid" | "unknown_key" | "not_provided" | "wrong_version" | "wrong_deal_memo"
     detail: str = ""
 
 
@@ -45,7 +45,11 @@ def validate_citations(
     version_in_force: str,
     deal_memo_id: str | None,
     required_keys: Iterable[str] = (),
+    provided_keys: Iterable[str] | None = None,
 ) -> CitationValidation:
+    """`provided_keys`, when given, are the passages the model was shown (ADR-018); a key that
+    exists in the corpus but was not provided is `not_provided`."""
+    provided = None if provided_keys is None else set(provided_keys)
     checks: list[CitationCheck] = []
     seen: list[str] = []
     for key in keys:
@@ -55,6 +59,10 @@ def validate_citations(
         chunk = lookup(key)
         if chunk is None:
             checks.append(CitationCheck(key, "unknown_key", "no passage with this citation key"))
+        elif provided is not None and key not in provided:
+            checks.append(
+                CitationCheck(key, "not_provided", "this passage was not given to the model")
+            )
         elif is_deal_memo_key(key):
             if deal_memo_id is not None and key != deal_memo_id:
                 checks.append(

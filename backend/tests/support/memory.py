@@ -8,7 +8,7 @@ from dataclasses import replace
 from typing import Any
 
 from payroll_triage.corpus.deal_memos import DealMemo
-from payroll_triage.db.store import CaseRecord, ExecutionPlan
+from payroll_triage.db.store import OPEN_STATUSES, AlreadyExecuted, CaseRecord, ExecutionPlan
 from payroll_triage.retrieval.chunker import Chunk
 from payroll_triage.retrieval.search import RankedChunk, combine
 from payroll_triage.timecards import Timecard
@@ -84,6 +84,19 @@ class MemoryStore:
         )
         return self.suggestions[-1]["id"]
 
+    def record_llm_output(self, case_id, contents, provider, model, adapter_version, actor, llm):
+        ids = {
+            kind: self.add_suggestion(case_id, kind, content, provider, model, adapter_version)
+            for kind, content in contents.items()
+        }
+        audit_id = self.add_audit(
+            case_id,
+            "suggestion",
+            actor,
+            {"kinds": list(contents), "suggestion_ids": ids, "content": contents, "llm": llm},
+        )
+        return ids, audit_id
+
     def set_suggestion_validation(self, suggestion_id: int, status: str, detail) -> None:
         row = self.suggestions[suggestion_id - 1]
         row["validation_status"] = status
@@ -110,6 +123,8 @@ class MemoryStore:
 
     def apply_execution(self, plan: ExecutionPlan) -> dict[str, Any]:
         effects: dict[str, Any] = {"action": plan.action, "actor": plan.actor}
+        if self.cases[plan.case_id].status not in OPEN_STATUSES:
+            raise AlreadyExecuted(f"case {plan.case_id} is not open; nothing executed")
         self.decisions.append(
             {
                 "id": len(self.decisions) + 1,
@@ -141,9 +156,15 @@ class MemoryStore:
         if plan.escalation_note is not None:
             self.escalations.append({"case_id": plan.case_id, "note": plan.escalation_note})
             effects["escalation_id"] = len(self.escalations)
-            effects["escalation_note_source"] = plan.escalation_note_source
+        if plan.message_source is not None:
+            effects["message_source"] = plan.message_source
         self.cases[plan.case_id] = replace(self.cases[plan.case_id], status=plan.case_status_after)
         effects["case_status"] = plan.case_status_after
+        if plan.decision_audit is not None:
+            effects["audit_ids"] = [
+                self.add_audit(plan.case_id, "decision", plan.actor, plan.decision_audit),
+                self.add_audit(plan.case_id, "execution", plan.actor, dict(effects)),
+            ]
         return effects
 
 

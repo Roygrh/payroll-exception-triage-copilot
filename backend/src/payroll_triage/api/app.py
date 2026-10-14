@@ -1,6 +1,7 @@
-"""REST API for the exception queue. The human identity comes from the request body (`actor`)
-in Phase 1; there is no authentication yet. Every write goes through the graph's execute node
-after the human checkpoint; the API itself only reads and resumes."""
+"""REST API for the exception queue (ADR-018: decide, then confirm the message). The human
+identity comes from the request body (`actor`) in Phase 1; there is no authentication yet.
+Every write goes through the graph's execute node after the human checkpoints; the API itself
+only reads and resumes."""
 
 from __future__ import annotations
 
@@ -9,18 +10,31 @@ from contextlib import asynccontextmanager
 from typing import Any, Literal
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
-from payroll_triage.graph.execute import DecisionError
+from payroll_triage.graph.execute import MAX_MESSAGE_LENGTH, DecisionError
 from payroll_triage.graph.service import CaseNotFound, CaseNotWaiting, TriageService
 from payroll_triage.runtime import Runtime, build_runtime
 
 
 class DecisionBody(BaseModel):
+    """Interrupt 1: the action and the actor. The message comes after, at /message (ADR-018)."""
+
+    model_config = ConfigDict(extra="forbid")
+
     action: Literal["approve", "return", "escalate"]
     actor: str = Field(min_length=1, max_length=200)
-    message: str | None = Field(default=None, max_length=4000)
-    recipient_role: Literal["employee", "department_head"] = "employee"
+
+
+class MessageBody(BaseModel):
+    """Interrupt 2: the confirmed message (by the actor who chose the action) or a cancel."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    actor: str = Field(min_length=1, max_length=200)
+    message: str | None = Field(default=None, max_length=MAX_MESSAGE_LENGTH)
+    recipient_role: Literal["employee", "department_head", "payroll_specialist"] | None = None
+    cancel: bool = False
 
 
 class IngestBody(BaseModel):
@@ -37,7 +51,7 @@ async def lifespan(app: FastAPI):
         runtime.close()
 
 
-app = FastAPI(title="Payroll Exception Triage Copilot API", version="0.2.0", lifespan=lifespan)
+app = FastAPI(title="Payroll Exception Triage Copilot API", version="0.3.0", lifespan=lifespan)
 
 
 def _service() -> TriageService:
@@ -82,16 +96,31 @@ def case_detail(case_id: str) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail=f"case {case_id} not found") from exc
 
 
-@app.post("/cases/{case_id}/decide")
-def decide(case_id: str, body: DecisionBody) -> dict[str, Any]:
+def _resume(case_id: str, call) -> dict[str, Any]:
     try:
-        return _service().decide(case_id, body.model_dump())
+        return call()
     except CaseNotFound as exc:
         raise HTTPException(status_code=404, detail=f"case {case_id} not found") from exc
     except CaseNotWaiting as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
     except DecisionError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.post("/cases/{case_id}/decide")
+def decide(case_id: str, body: DecisionBody) -> dict[str, Any]:
+    """Approve executes. Return and escalate draft the message for that action (one LLM call,
+    seconds to tens of seconds on the free tier) and wait at the message step; repeating the
+    same request after a client timeout resumes the same run."""
+    return _resume(case_id, lambda: _service().decide(case_id, body.model_dump()))
+
+
+@app.post("/cases/{case_id}/message")
+def confirm_message(case_id: str, body: MessageBody) -> dict[str, Any]:
+    payload = body.model_dump(exclude_none=True)
+    if not body.cancel:
+        payload.pop("cancel")
+    return _resume(case_id, lambda: _service().confirm_message(case_id, payload))
 
 
 @app.get("/cases/{case_id}/audit")

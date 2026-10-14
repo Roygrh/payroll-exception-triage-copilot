@@ -2,7 +2,7 @@
 
 A reference implementation of exception triage for entertainment production payroll.
 
-When a crew timecard trips a rule of the collective agreement (late meal, extended day, short rest, incomplete punches, a deal memo rate below scale, overdue eligibility paperwork), a deterministic rule engine detects the finding and computes the facts. An LLM then explains the finding with verifiable citations to the exact agreement passage and deal memo, proposes the resolution and drafts the return message. A human approver decides. Deterministic code executes the decision and writes an append-only audit trail. An evaluation gate measures the LLM against known ground truth before any version ships.
+When a crew timecard trips a rule of the collective agreement (late meal, extended day, short rest, incomplete punches, a deal memo rate below scale, overdue eligibility paperwork), a deterministic rule engine detects the finding and computes the facts. An LLM then explains the finding with verifiable citations to the exact agreement passage and deal memo, and proposes the resolution. A human approver decides; for a return or an escalation the LLM then drafts the message for that decision, which the approver edits and confirms. Deterministic code executes the decision and writes an append-only audit trail. An evaluation gate measures the LLM against known ground truth before any version ships.
 
 Everything in this repository is synthetic: the agreement, the rates, the crew, the productions and the timecards. No real company, product, union or guild is named or quoted.
 
@@ -23,13 +23,19 @@ uv run ptc migrate                         # tables, audit trigger, LangGraph ch
 uv run ptc seed                            # 22 timecards, 10 deal memos
 uv run ptc ingest-corpus                   # downloads the embedding model once (about 67 MB)
 uv run ptc smoke-llm                       # one real call; prints the provider's rate limit headers
-uv run ptc showcase --decision return      # SC-03 end to end: detect, retrieve, explain, propose, draft,
-                                           # validate, pause, resume with a decision, execute, audit
+uv run ptc showcase --decision approve     # SC-03 end to end: detect, retrieve, explain and propose,
+                                           # validate, pause, resume, execute, audit; prints tokens per case
+uv run ptc showcase --scenario SC-05 --decision return
+                                           # return: draft for the return, stops at the message step
+uv run ptc confirm-message --case CASE-EMP-1002-20260314 --accept-draft
+                                           # the approver accepts the printed draft: execute, audit
+uv run ptc showcase --scenario SC-05 --decision return --dry-run
+                                           # offline token estimate, no provider call (ADR-019)
 uv run ptc serve                           # API on http://127.0.0.1:8000/docs
-uv run pytest                              # 175 tests (integration tests use the compose database)
+uv run pytest                              # 210 tests (integration tests use the compose database)
 ```
 
-Demo steps 1 to 3 over the API: `POST /ingest {"week_ending": "2026-03-14"}`, `GET /queue`, `GET /cases/{id}`, `GET /passages/{citation_key}`, `POST /cases/{id}/decide {"action": "return", "actor": "...", "message": "..."}`, `GET /cases/{id}/audit`.
+Demo steps 1 to 3 over the API: `POST /ingest {"week_ending": "2026-03-14"}`, `GET /queue`, `GET /cases/{id}`, `GET /passages/{citation_key}`, `POST /cases/{id}/decide {"action": "return", "actor": "..."}` (the message is drafted for the return), `POST /cases/{id}/message {"actor": "...", "message": "..."}` (confirm or edit; or `{"actor": "...", "cancel": true}`), `GET /cases/{id}/audit`.
 
 ## Layout
 

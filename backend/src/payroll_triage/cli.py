@@ -121,14 +121,42 @@ def _cmd_smoke_llm(_: argparse.Namespace) -> int:
 
 
 def _cmd_showcase(args: argparse.Namespace) -> int:
+    from payroll_triage.config import get_settings
     from payroll_triage.data.scenarios import load_catalog
+    from payroll_triage.showcase import dry_run, print_dry_run, run_showcase
+
+    if args.message and args.decision == "approve":
+        raise ValueError("an approve sends no message; --message is for return or escalate")
+    if args.dry_run:
+        print_dry_run(dry_run(args.scenario, args.decision, get_settings().llm_max_output_tokens))
+        return 0
     from payroll_triage.runtime import build_runtime
-    from payroll_triage.showcase import run_showcase
 
     actor = args.actor or load_catalog().demo_approver
     runtime = build_runtime()
     try:
         run_showcase(runtime.service, args.scenario, actor, args.decision, args.message)
+    finally:
+        runtime.close()
+    return 0
+
+
+def _cmd_confirm_message(args: argparse.Namespace) -> int:
+    """Resume a case waiting at the message step (ADR-018) on an explicit human instruction."""
+    from payroll_triage.data.scenarios import load_catalog
+    from payroll_triage.runtime import build_runtime
+    from payroll_triage.showcase import _p, confirm
+
+    if sum(bool(x) for x in (args.message, args.accept_draft, args.cancel)) != 1:
+        raise ValueError("give exactly one of --message, --accept-draft or --cancel")
+    actor = args.actor or load_catalog().demo_approver
+    runtime = build_runtime()
+    try:
+        outcome = confirm(
+            runtime.service, args.case, actor, args.message, args.accept_draft, args.cancel
+        )
+        _p("outcome", {k: v for k, v in (outcome or {}).items() if k != "llm_calls"})
+        _p("audit trail", runtime.service.store.list_audit(args.case))
     finally:
         runtime.close()
     return 0
@@ -174,7 +202,9 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser(
         "smoke-llm", help="one minimal real call through the configured adapter"
     ).set_defaults(func=_cmd_smoke_llm)
-    show = sub.add_parser("showcase", help="run one scenario end to end with the real LLM")
+    show = sub.add_parser(
+        "showcase", help="run one scenario end to end with the real LLM (or --dry-run offline)"
+    )
     show.add_argument("--scenario", default="SC-03")
     show.add_argument("--actor", default=None, help="human identity (default: demo_approver)")
     show.add_argument(
@@ -186,9 +216,25 @@ def build_parser() -> argparse.ArgumentParser:
     show.add_argument(
         "--message",
         default=None,
-        help="message to send on a return (default: the validated draft verbatim)",
+        help="return or escalate: a message the human wrote (otherwise the run stops at the "
+        "message step; confirm the printed draft with ptc confirm-message)",
+    )
+    show.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="build the prompts offline and print estimated input tokens; no database, no key, "
+        "no provider call",
     )
     show.set_defaults(func=_cmd_showcase)
+    conf = sub.add_parser(
+        "confirm-message", help="confirm or cancel the message of a case at the message step"
+    )
+    conf.add_argument("--case", required=True, help="case id, for example CASE-EMP-1002-20260314")
+    conf.add_argument("--actor", default=None, help="human identity (default: demo_approver)")
+    conf.add_argument("--message", default=None, help="the message the human writes or edits")
+    conf.add_argument("--accept-draft", action="store_true", help="send the validated draft")
+    conf.add_argument("--cancel", action="store_true", help="go back to choosing the action")
+    conf.set_defaults(func=_cmd_confirm_message)
     serve = sub.add_parser("serve", help="run the API with uvicorn")
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8000)

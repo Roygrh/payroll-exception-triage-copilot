@@ -23,7 +23,7 @@ from payroll_triage.graph.service import CaseNotWaiting, TriageService
 from payroll_triage.params import load_parameters
 from payroll_triage.retrieval.chunker import build_corpus
 from payroll_triage.runtime import demo_clock
-from payroll_triage.showcase import run_showcase
+from payroll_triage.showcase import confirm, run_showcase
 from tests.support.fake_adapter import FakeAdapter, good_outputs
 from tests.support.memory import MemoryRetriever, MemoryStore
 
@@ -72,7 +72,7 @@ def test_empty_retrieval_routes_to_review_without_llm_calls(timecards, memos, pa
 
 
 def test_review_path_approve_adds_premium_under_human_identity(timecards, memos, corpus, params):
-    adapter = FakeAdapter(good_outputs(SECTION_KEY, "DM-01", "approve"), fail={"explain"})
+    adapter = FakeAdapter(good_outputs(SECTION_KEY, "DM-01", "approve"), fail={"explain_propose"})
     service, store = _service(timecards, memos, params, adapter, MemoryRetriever(corpus))
     tc = _tc(timecards, "SC-03")
     case_id = service.run_timecard(tc.id)["case_id"]
@@ -126,7 +126,7 @@ def test_case_stuck_in_detected_is_resumed_on_the_next_ingest(timecards, memos, 
     assert result["status"] == "awaiting_decision" and result.get("already_existed") is None
     assert result["waiting_on"] == ["human_checkpoint"]
     assert store.decisions == [] and store.premium_lines == []
-    assert len(adapter.requests) == 3
+    assert len(adapter.requests) == 1
     outcome = service.decide(result["case_id"], {"action": "approve", "actor": "sam.verhoeven"})
     assert outcome["status"] == "approved" and store.decisions[-1]["actor"] == "sam.verhoeven"
 
@@ -161,7 +161,7 @@ def test_execute_retry_runs_the_stored_decision_only(timecards, memos, corpus, p
         service.decide(case_id, first)
     assert service.case_detail(case_id)["pending_retry"] is True
     assert service.case_detail(case_id)["waiting_on"] == ["execute"]
-    with pytest.raises(CaseNotWaiting, match="already has a decision by 'approver.a'"):
+    with pytest.raises(CaseNotWaiting, match="already holds the decision of 'approver.a'"):
         service.decide(case_id, {"action": "escalate", "actor": "approver.b"})
     outcome = service.decide(case_id, first)
     assert outcome["retried_execution"] is True and outcome["status"] == "approved"
@@ -208,17 +208,37 @@ def test_catalog_labels_match_the_code_defaults():
 def test_showcase_never_composes_the_human_message(timecards, memos, corpus, params, capsys):
     adapter = FakeAdapter(good_outputs(SECTION_KEY, "DM-02", "return"), fail={"draft"})
     service, store = _service(timecards, memos, params, adapter, MemoryRetriever(corpus))
-    with pytest.raises(ValueError, match="needs --message"):
-        run_showcase(service, "SC-05", "sam.verhoeven", "return", None)
+    summary = run_showcase(service, "SC-05", "sam.verhoeven", "return")
+    assert summary["waiting_on"] == ["message_checkpoint"]
+    with pytest.raises(ValueError, match="--accept-draft needs a validated draft"):
+        confirm(service, summary["case_id"], "sam.verhoeven", None, accept_draft=True)
     assert store.return_messages == [] and store.decisions == []
     capsys.readouterr()
+
+
+def test_showcase_stops_at_the_message_step_without_a_human_instruction(
+    timecards, memos, corpus, params, capsys
+):
+    adapter = FakeAdapter(good_outputs(SECTION_KEY, "DM-02", "return"))
+    service, store = _service(timecards, memos, params, adapter, MemoryRetriever(corpus))
+    summary = run_showcase(service, "SC-05", "sam.verhoeven", "return")
+    assert summary["waiting_on"] == ["message_checkpoint"]
+    assert store.return_messages == [] and store.decisions == []
+    assert "ptc confirm-message" in capsys.readouterr().out
 
 
 def test_showcase_sends_the_validated_draft_verbatim(timecards, memos, corpus, params, capsys):
     adapter = FakeAdapter(good_outputs(SECTION_KEY, "DM-02", "return"))
     service, store = _service(timecards, memos, params, adapter, MemoryRetriever(corpus))
-    summary = run_showcase(service, "SC-05", "sam.verhoeven", "return", None)
-    assert summary["status_after"] == "returned"
-    draft = store.list_suggestions(summary["case_id"])[2]["content"]["body"]
-    assert store.return_messages[-1]["body"] == draft
-    capsys.readouterr()
+    summary = run_showcase(service, "SC-05", "sam.verhoeven", "return")
+    assert summary["waiting_on"] == ["message_checkpoint"]  # the human reads the draft first
+    assert summary["tokens"]["llm_calls"] == 2
+    assert summary["tokens"]["total_tokens_per_case"] == 30  # fake usage: 10 in + 5 out per call
+    assert "TOKENS PER CASE (SC-05): 30" in capsys.readouterr().out
+    outcome = confirm(service, summary["case_id"], "sam.verhoeven", None, accept_draft=True)
+    assert outcome["status"] == "returned"
+    draft = next(s for s in store.list_suggestions(summary["case_id"]) if s["kind"] == "draft")
+    assert store.return_messages[-1]["body"] == draft["content"]["body"]
+    executed = [a for a in store.list_audit(summary["case_id"]) if a["entry_kind"] == "decision"]
+    assert executed[-1]["payload"]["message_source"] == "draft_confirmed"
+    assert executed[-1]["payload"]["message_edited"] is False
