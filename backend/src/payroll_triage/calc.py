@@ -34,6 +34,17 @@ def minutes(hours: float) -> int:
     return int(round(hours * 60))
 
 
+def clock_time(hours: float) -> str:
+    """A timecard event as a time of day, HH:MM on a 24-hour clock (12.4 is "12:24"). An event
+    past midnight is marked: 26.5 is "02:30 next day". Shown to the model instead of decimal
+    hours so a time of day is never read as a duration (P1.I2b.S8)."""
+    if hours < 0:
+        raise ValueError(f"a timecard time cannot be negative: {hours}")
+    days, rest = divmod(minutes(hours), 24 * 60)
+    text = f"{rest // 60:02d}:{rest % 60:02d}"
+    return f"{text} next day" if days else text
+
+
 def money(value: Decimal | float | int) -> Decimal:
     return Decimal(str(value)).quantize(CENT, rounding=ROUND_HALF_UP)
 

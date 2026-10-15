@@ -22,6 +22,16 @@ def test_tenths_and_minutes():
     assert calc.minutes(0.5) == 30
 
 
+def test_clock_time_is_a_time_of_day_in_hh_mm():
+    assert calc.clock_time(7.0) == "07:00"
+    assert calc.clock_time(12.0) == "12:00"
+    assert calc.clock_time(12.4) == "12:24"
+    assert calc.clock_time(26.5) == "02:30 next day"  # a wrap past midnight
+    assert calc.clock_time(24.0) == "00:00 next day"
+    with pytest.raises(ValueError):
+        calc.clock_time(-0.5)
+
+
 def test_meal_on_time_has_no_penalty(p):
     call = 7.0
     out = call + p.meal.deadline_hours

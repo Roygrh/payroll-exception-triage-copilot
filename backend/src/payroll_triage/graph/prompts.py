@@ -18,10 +18,12 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from payroll_triage.engine.facts import FACTS_MODELS
+from payroll_triage.calc import clock_time
+from payroll_triage.engine.facts import FACTS_MODELS, fact_units
 from payroll_triage.policy import POLICY_ROW_TEXT, SEVERITY, Situation
+from payroll_triage.timecards import TIME_FIELDS
 
-PROMPT_VERSION = "2026-10-10.1"
+PROMPT_VERSION = "2026-10-14.1"
 
 
 class ExplainOutput(BaseModel):
@@ -98,7 +100,8 @@ SYSTEM_PROMPT = (
     "1. Use only the facts and passages given. No outside knowledge of any real agreement.\n"
     "2. Never calculate, convert units, round, count or estimate. Copy every number exactly as "
     "it appears in the facts, the case or a passage, with the unit of that fact (minutes_late "
-    "in minutes, hours_late in hours). Write no other number.\n"
+    "in minutes, hours_late in hours). Write no other number. Timecard times are times of day "
+    "(HH:MM), not durations: write them exactly as shown, never with minutes or hours.\n"
     "3. Cite only with the citation keys of the given passages, in square brackets, for example "
     "[<citation key>]. Square brackets are for citation keys only: never put fact names, notes "
     "or anything else in square brackets, and never write a citation key outside them.\n"
@@ -130,7 +133,34 @@ def case_context(case: dict[str, Any]) -> dict[str, Any]:
         "week_ending": case["week_ending"],
         "payroll_cutoff_date": case["payroll_cutoff_date"],
         "agreement_version": case["version_in_force"],
-        "timecard_days_with_findings": case["days_with_findings"],
+        "timecard_days_with_findings": {
+            date: _day_times_of_day(day) for date, day in case["days_with_findings"].items()
+        },
+    }
+
+
+def _day_times_of_day(day: dict[str, Any]) -> dict[str, Any]:
+    """A timecard day as shown to the model: events as times of day in HH:MM (P1.I2b.S8), never
+    as decimal hours, so a time such as meal out at 12:00 cannot be read as a duration."""
+    return {
+        "weekday": day["weekday"],
+        "day_type": day["day_type"],
+        "work_location": day["work_location"],
+        "times_of_day": {
+            event: None if day.get(event) is None else clock_time(day[event])
+            for event in TIME_FIELDS
+        },
+    }
+
+
+def case_clock_times(case: dict[str, Any]) -> set[str]:
+    """Every timecard event of the case's days with findings as HH:MM, without the next-day
+    mark: the only clock times an output may write (P1.I2b.S8)."""
+    return {
+        clock_time(day[event]).split()[0]
+        for day in case.get("days_with_findings", {}).values()
+        for event in TIME_FIELDS
+        if day.get(event) is not None
     }
 
 
@@ -150,14 +180,16 @@ def _findings_block(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def _fact_names_block(findings: list[dict[str, Any]]) -> str:
-    """What each fact means, once per rule (not repeated per finding)."""
+    """What each fact means and its unit, once per rule (not repeated per finding)."""
     lines = []
     for rule_id in dict.fromkeys(f["rule_id"] for f in findings):
         model = FACTS_MODELS.get(rule_id)
         if model is None:
             continue
+        units = fact_units(rule_id)
         for name, field in model.model_fields.items():
-            lines.append(f"- {rule_id}.{name}: {field.description or ''}")
+            unit = f" ({units[name]})" if name in units else ""
+            lines.append(f"- {rule_id}.{name}{unit}: {field.description or ''}")
     return "\n".join(lines)
 
 

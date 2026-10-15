@@ -9,12 +9,23 @@ from langgraph.checkpoint.memory import InMemorySaver
 from payroll_triage.corpus.render import render_agreement
 from payroll_triage.data.generator import load_generated_timecards
 from payroll_triage.db.seed import all_deal_memos
+from payroll_triage.engine import detect
 from payroll_triage.engine.facts import MealPeriodFacts
 from payroll_triage.evals.manifest import build_manifest
 from payroll_triage.graph import prompts
 from payroll_triage.graph.build import build_graph
 from payroll_triage.graph.execute import DecisionError
-from payroll_triage.graph.nodes import Deps, cited_keys, pseudo_references, stray_numbers
+from payroll_triage.graph.nodes import (
+    Deps,
+    build_case,
+    cited_keys,
+    clock_times_with_unit,
+    pseudo_references,
+    stray_numbers,
+    unit_mismatches,
+    unit_numbers,
+    unknown_clock_times,
+)
 from payroll_triage.graph.service import _RESUME_CHANNEL, CaseNotWaiting, TriageService
 from payroll_triage.params import load_parameters
 from payroll_triage.retrieval.chunker import build_corpus
@@ -499,7 +510,188 @@ def test_prompts_are_compact_and_estimates_are_deterministic(timecards, memos, c
     request = adapter.requests[0]
     content = request.messages[0].content
     assert '": ' not in content and "\n  " not in content  # no indentation, compact JSON
-    assert content.count("MEAL_PERIOD.hours_late:") == 1  # fact meanings listed once per rule
+    # fact meanings and units listed once per rule
+    assert content.count("MEAL_PERIOD.hours_late (hours):") == 1
     assert request.max_output_tokens == 2 * 1200  # the merged call returns two outputs
     assert estimate_request(request) == estimate_request(request)
     assert "title" not in str(prompts.strict_schema(prompts.ExplainProposeOutput))
+
+
+# ---------- S8: unit and clock-time meaning check ----------
+
+# The sentence of the author's S6 run (2026-10-14): 12.0 is the clock time of meal out (12:00),
+# hours to meal was 5.0. The stray-number check passed it because 12.0 was in the case data (meal
+# out in decimal hours) and still passes it whenever a cited passage holds a 12; only the unit
+# check reads what the number means.
+S6_SENTENCE = "the meal out at 12.0 minutes after Call"
+
+
+def test_prompts_show_times_of_day_in_hh_mm_and_fact_units(timecards, memos, corpus, params):
+    adapter = FakeAdapter(good_outputs(SECTION_KEY, "DM-02", "return"))
+    service, _ = _service(timecards, memos, corpus, params, adapter)
+    case_id = service.run_timecard(_tc(timecards, "SC-05").id)["case_id"]
+    service.decide(case_id, {"action": "return", "actor": ACTOR})
+    assert adapter.kinds() == ["explain_propose", "draft"]
+    for request in adapter.requests:
+        content = request.messages[0].content
+        assert '"times_of_day":{"call":"07:00","meal_out":"12:00","meal_in":"12:24"' in content
+        assert '"meal_out":12.0' not in content and '"meal_in":12.4' not in content
+        assert "MEAL_PERIOD.hours_to_meal (hours):" in content
+        assert "MEAL_PERIOD.meal_minutes (minutes):" in content
+    assert "times of day (hh:mm), not durations" in prompts.SYSTEM_PROMPT.lower()
+
+
+def test_unit_numbers_are_read_with_their_unit():
+    text = (
+        "A 30-minute meal, 0.5 hour late, 1,200 minutes, 6.0 Hours, 30 min, 6 hrs, 2 hr; "
+        "not 12:30 minutes or DM-02."
+    )
+    assert [(str(v), u) for v, u, _ in unit_numbers(text)] == [
+        ("30", "minutes"),
+        ("0.5", "hours"),
+        ("1200", "minutes"),
+        ("6.0", "hours"),
+        ("30", "minutes"),
+        ("6", "hours"),
+        ("2", "hours"),
+    ]
+    assert clock_times_with_unit(text) == ["12:30 minutes"]
+    # No space, a lone "h" and Unicode hyphens (non-breaking hyphen, en dash) are read too.
+    other = f"12.0min, 6 h, 12{chr(0x2011)}minute, 5{chr(0x2013)}hour"
+    assert [(str(v), u) for v, u, _ in unit_numbers(other)] == [
+        ("12.0", "minutes"),
+        ("6", "hours"),
+        ("12", "minutes"),
+        ("5", "hours"),
+    ]
+    # Words and identifiers that are not units stay unread.
+    assert unit_numbers("30 minimum, 6 hourly, the 8th day, SC-05h, EMP-1001h, 5 hands") == []
+
+
+def test_a_unit_number_is_allowed_by_a_sent_passage_with_that_unit_only():
+    passage = {
+        "citation_key": "P-1",
+        "heading": "Rest",
+        "body": "not less than 10.0 hours between Wrap and Call",
+    }
+    state = {"findings": [], "case": {}, "chunks": [passage], "passage_keys": ["P-1"]}
+    assert unit_mismatches("a rest of 10.0 hours", state) == []
+    assert unit_mismatches("a rest of 10.0 minutes", state) == ["10.0 minutes"]
+    assert unit_mismatches("a rest of 10.0 hours", {**state, "passage_keys": []}) == ["10.0 hours"]
+
+
+def test_the_s6_sentence_fails_the_meaning_check_and_clock_times_allow_no_bare_number(
+    timecards, memos, params
+):
+    tc = _tc(timecards, "SC-05")
+    clock = demo_clock()
+    findings = [
+        f.to_dict()
+        for f in detect(tc, memos["DM-02"], params, clock.as_of, clock.payroll_run_date).findings
+    ]
+    case = build_case(tc, memos["DM-02"], findings, clock.payroll_run_date, "2026.1")
+    state = {"findings": findings, "case": case, "chunks": []}
+    assert findings[0]["facts"]["hours_to_meal"] == 5.0
+    assert unit_mismatches(S6_SENTENCE, state) == ["12.0 minutes"]  # meaning: no such fact
+    # Presence: 12:00 no longer allows a bare 12, so with the case data alone 12.0 is stray too.
+    assert stray_numbers(S6_SENTENCE, state) == ["12.0"]
+    assert unknown_clock_times("meal out at 12:00, meal in at 12:24", state) == []
+    assert unknown_clock_times("meal out at 13:15", state) == ["13:15"]
+    assert unknown_clock_times("meal out at 12:00:00, not 13:15:00", state) == ["13:15"]
+    # A clock time allows no bare number: "12.0" with no unit is a stray number, "12:00" is not.
+    assert stray_numbers("the meal out at 12.0 after Call", state) == ["12.0"]
+    assert stray_numbers("the meal out at 12:00, meal in at 12:24", state) == []
+
+
+def _sc05_draft(body):
+    outputs = good_outputs(SECTION_KEY, "DM-02", "return")
+    draft = outputs["draft"]
+    outputs["draft"] = lambda r: {**draft(r), "body": body}  # type: ignore[operator]
+    return outputs
+
+
+# The same error in the HH:MM form the prompts now use: passes the clock and presence checks.
+S6_SENTENCE_HH_MM = "the meal out at 12:00 minutes after Call"
+
+
+@pytest.mark.parametrize(
+    "sentence, check, written",
+    [
+        (S6_SENTENCE, "numbers with a unit that match no fact or sent passage", "'12.0 minutes'"),
+        (S6_SENTENCE_HH_MM, "clock times written as durations", "'12:00 minutes'"),
+    ],
+)
+@pytest.mark.parametrize("part", ["explanation", "proposal", "draft"])
+def test_the_s6_sentence_routes_to_review_in_every_output(
+    timecards, memos, corpus, params, part, sentence, check, written
+):
+    text = f"Per the timecard, {sentence} [{SECTION_KEY}]."
+    outputs = good_outputs(SECTION_KEY, "DM-02", "return")
+    if part == "explanation":
+        outputs = with_explanation(outputs, explanation=f"{text} [DM-02]")
+    elif part == "proposal":
+        outputs = with_proposal(outputs, justification=text)
+    else:
+        outputs = _sc05_draft(text)
+    service, _ = _service(timecards, memos, corpus, params, FakeAdapter(outputs))
+    result = service.run_timecard(_tc(timecards, "SC-05").id)
+    if part == "draft":
+        assert result["status"] == "awaiting_decision", result.get("review_reason")
+        result = service.decide(result["case_id"], {"action": "return", "actor": ACTOR})
+        assert result["draft"] is None and result["draft_status"] == "invalid"
+    kind = {"explanation": "explain", "proposal": "propose", "draft": "draft"}[part]
+    assert result["status"] == "needs_human_review"
+    reason = result["review_reason"]
+    assert f"{kind}: {check}" in reason
+    assert written in reason
+
+
+def test_correct_units_and_clock_times_pass(timecards, memos, corpus, params):
+    # Agreement values from the YAML ("30 minutes", "6.0 hours" today); 24, 5.0, 0.5, 30 and 6.5 are
+    # the scenarios' facts.
+    minimum, deadline = params.meal.min_duration_minutes, params.meal.deadline_hours
+    sc05 = (
+        f"Meal out was at 12:00 and meal in at 12:24, a meal of 24 minutes, shorter than the "
+        f"{minimum} minutes required; it began 5.0 hours after call, within {deadline} hours "
+        f"[{SECTION_KEY}] [DM-02]."
+    )
+    draft = (
+        f"Your 24-minute meal on 2026-03-11 (12:00 to 12:24) is under {minimum} minutes "
+        f"[{SECTION_KEY}]."
+    )
+    outputs = _sc05_draft(draft)
+    outputs = with_explanation(outputs, explanation=sc05)
+    outputs = with_proposal(outputs, justification=f"A 24-minute meal [{SECTION_KEY}].")
+    service, _ = _service(timecards, memos, corpus, params, FakeAdapter(outputs))
+    result = service.run_timecard(_tc(timecards, "SC-05").id)
+    assert result["status"] == "awaiting_decision", result.get("review_reason")
+    chosen = service.decide(result["case_id"], {"action": "return", "actor": ACTOR})
+    assert chosen["draft_status"] == "valid", chosen.get("review_reason")
+
+    sc03 = (
+        f"The meal began 0.5 hour (30 minutes) late, 6.5 hours after call [{SECTION_KEY}] [DM-01]."
+    )
+    outputs = with_explanation(good_outputs(SECTION_KEY, "DM-01", "approve"), explanation=sc03)
+    service, _ = _service(timecards, memos, corpus, params, FakeAdapter(outputs))
+    result = service.run_timecard(_tc(timecards, "SC-03").id)
+    assert result["status"] == "awaiting_decision", result.get("review_reason")
+
+
+@pytest.mark.parametrize(
+    "sentence, reason",
+    [
+        ("Meal out was at 13:15", "clock times that are not a timecard event of the case: "),
+        ("The penalty is 99.99 USD", "numbers not in the facts or passages: ['99.99']"),
+    ],
+)
+def test_unknown_clock_times_and_stray_numbers_still_route(
+    timecards, memos, corpus, params, sentence, reason
+):
+    outputs = with_explanation(
+        good_outputs(SECTION_KEY, "DM-02", "return"),
+        explanation=f"{sentence} [{SECTION_KEY}] [DM-02].",
+    )
+    service, _ = _service(timecards, memos, corpus, params, FakeAdapter(outputs))
+    result = service.run_timecard(_tc(timecards, "SC-05").id)
+    assert result["status"] == "needs_human_review"
+    assert f"explain: {reason}" in result["review_reason"]

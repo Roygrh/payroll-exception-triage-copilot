@@ -3,8 +3,9 @@ human_checkpoint, validate_draft, message_checkpoint, execute, audit. LLM nodes 
 adapter only): explain_propose before the human checkpoint, draft after it, only for the action
 the human chose (return or escalate).
 
-Any LLM failure, unparsable output, invalid citation, bracketed pseudo-reference, stray number
-or proposal mismatch routes the case to needs human review: the case is shown with facts only
+Any LLM failure, unparsable output, invalid citation, bracketed pseudo-reference, stray number,
+number whose unit matches no fact, unknown clock time or proposal mismatch routes the case to
+needs human review: the case is shown with facts only
 and the reason; no template ever replaces the model's text (constraint 7).
 """
 
@@ -25,6 +26,7 @@ from pydantic import BaseModel, ValidationError
 from payroll_triage.corpus.deal_memos import DealMemo
 from payroll_triage.db.store import AlreadyExecuted, CaseRecord, CaseStore, case_id_for
 from payroll_triage.engine import detect as engine_detect
+from payroll_triage.engine.facts import fact_units
 from payroll_triage.graph import prompts
 from payroll_triage.graph.execute import (
     DEFAULT_INTAKE_STATUS,
@@ -397,9 +399,11 @@ def pseudo_references(text: str) -> list[str]:
 
 def numbers_in(text: str) -> set[Decimal]:
     """Numeric tokens in free text. Identifiers (citation keys, DM-01, EMP-1001, TC-..., CASE-...)
-    are removed first; dates split into their parts so "2026-03-10" allows 2026, 3 and 10."""
+    and clock times (HH:MM, checked by unknown_clock_times) are removed first, so "12:00" never
+    allows a bare 12 (P1.I2b.S8); dates split into their parts so "2026-03-10" allows 2026, 3
+    and 10."""
     out: set[Decimal] = set()
-    for token in _NUMBER.findall(_IDENTIFIER.sub(" ", text)):
+    for token in _NUMBER.findall(_CLOCK_TIME.sub(" ", _IDENTIFIER.sub(" ", text))):
         try:
             out.add(Decimal(token.replace(",", "")))
         except InvalidOperation:
@@ -424,6 +428,75 @@ def allowed_numbers(state: CaseState, cited: Iterable[str] = ()) -> set[Decimal]
 def stray_numbers(generated: str, state: CaseState, cited: Iterable[str] = ()) -> list[str]:
     allowed = allowed_numbers(state, cited)
     return sorted(str(n) for n in numbers_in(generated) if n not in allowed)
+
+
+# A duration unit after a number: "24 minutes", "0.5 hour", "30-minute", "30 min", "12.0min",
+# "6 hrs", "6 h". Hyphens include the Unicode hyphen and dash characters (built with chr).
+_HYPHENS = "-" + chr(0x2010) + "-" + chr(0x2015)  # first in a [...] class: "-" is literal
+_UNIT = r"(?:\s*[" + _HYPHENS + r"]\s*|\s*)(minutes?|mins?|hours?|hrs?|h)\b"
+_UNIT_NAME = {"min": "minutes", "hou": "hours", "hrs": "hours", "hr": "hours", "h": "hours"}
+# A number written with a duration unit. A number that is part of a clock time ("12:30
+# minutes", read by _CLOCK_WITH_UNIT instead), an identifier or a longer number is not read here.
+_UNIT_NUMBER = re.compile(
+    r"(?<![" + _HYPHENS + r"\w.,:])(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)" + _UNIT,
+    re.IGNORECASE,
+)
+# HH:MM, with optional seconds (compared by HH:MM).
+_CLOCK = r"(?<![\w.:])(\d{1,2}):(\d{2})(?::\d{2})?(?![\d:])"
+_CLOCK_TIME = re.compile(_CLOCK)
+_CLOCK_WITH_UNIT = re.compile(_CLOCK + _UNIT, re.IGNORECASE)
+
+
+def _unit_name(written: str) -> str:
+    return _UNIT_NAME[written.lower()[:3]]
+
+
+def unit_numbers(text: str) -> list[tuple[Decimal, str, str]]:
+    """(value, unit, as written) for every number written with minutes or hours (also "min",
+    "mins", "hr", "hrs"); the unit is normalized to "minutes" or "hours"."""
+    out = []
+    for number, written in _UNIT_NUMBER.findall(text):
+        unit = _unit_name(written)
+        out.append((Decimal(number.replace(",", "")), unit, f"{number} {unit}"))
+    return out
+
+
+def clock_times_with_unit(generated: str) -> list[str]:
+    """A time of day written as a duration, for example "12:00 minutes" (P1.I2b.S8): the S6
+    error in the HH:MM form the prompts now use. Always a problem, whatever the time."""
+    return list(
+        dict.fromkeys(
+            f"{int(h):02d}:{m} {_unit_name(u)}" for h, m, u in _CLOCK_WITH_UNIT.findall(generated)
+        )
+    )
+
+
+def allowed_unit_numbers(state: CaseState) -> set[tuple[Decimal, str]]:
+    """(value, unit) pairs an output may write (P1.I2b.S8): every fact that has a unit, with that
+    unit, and every number written with a unit in a passage that was sent to the model."""
+    allowed: set[tuple[Decimal, str]] = set()
+    for f in state["findings"]:
+        units = fact_units(f.get("rule_id", ""))
+        for name, value in f["facts"].items():
+            if name in units and value is not None:
+                allowed.add((Decimal(str(value)), units[name]))
+    for c in _sent_passages(state):
+        allowed.update((v, u) for v, u, _ in unit_numbers(c["heading"] + " " + c["body"]))
+    return allowed
+
+
+def unit_mismatches(generated: str, state: CaseState) -> list[str]:
+    """Numbers written with a unit that match no fact of that unit and no sent passage with that
+    unit, for example "12.0 minutes" when 12:00 is the clock time of meal out (P1.I2b.S8)."""
+    allowed = allowed_unit_numbers(state)
+    return list(dict.fromkeys(w for v, u, w in unit_numbers(generated) if (v, u) not in allowed))
+
+
+def unknown_clock_times(generated: str, state: CaseState) -> list[str]:
+    """Clock times written as HH:MM that are not a timecard event of the case (P1.I2b.S8)."""
+    events = prompts.case_clock_times(state["case"] or {})
+    written = (f"{int(h):02d}:{m}" for h, m in _CLOCK_TIME.findall(generated))
+    return list(dict.fromkeys(t for t in written if t not in events))
 
 
 def cited_keys(output: dict[str, Any] | None, *text_fields: str) -> list[str]:
@@ -451,8 +524,9 @@ def _check_output(
     fields: tuple[str, ...],
     required: list[str],
 ) -> tuple[dict[str, Any], list[str]]:
-    """Citations (provided, existing, version, deal memo, required), pseudo-references and stray
-    numbers for one output. Returns (detail, problems)."""
+    """Citations (provided, existing, version, deal memo, required), pseudo-references, stray
+    numbers, numbers with a unit and clock times (P1.I2b.S8) for one output. Returns (detail,
+    problems)."""
     keys = cited_keys(output, *fields)
     result = validate_citations(
         keys,
@@ -464,6 +538,9 @@ def _check_output(
     )
     text = " ".join((output or {}).get(f) or "" for f in fields)
     stray = stray_numbers(text, state, keys)
+    units = unit_mismatches(text, state)
+    clocks = unknown_clock_times(text, state)
+    clock_durations = clock_times_with_unit(text)
     pseudo = pseudo_references(text)
     problems: list[str] = []
     if not result.valid:
@@ -483,7 +560,23 @@ def _check_output(
         problems.append(f"{kind}: bracketed text that is not a citation key: {pseudo}")
     if stray:
         problems.append(f"{kind}: numbers not in the facts or passages: {stray}")
-    detail = {**result.to_dict(), "pseudo_references": pseudo, "stray_numbers": stray}
+    if units:
+        problems.append(
+            f"{kind}: numbers with a unit that match no fact or sent passage with that unit: "
+            f"{units}"
+        )
+    if clocks:
+        problems.append(f"{kind}: clock times that are not a timecard event of the case: {clocks}")
+    if clock_durations:
+        problems.append(f"{kind}: clock times written as durations: {clock_durations}")
+    detail = {
+        **result.to_dict(),
+        "pseudo_references": pseudo,
+        "stray_numbers": stray,
+        "unit_mismatches": units,
+        "unknown_clock_times": clocks,
+        "clock_times_with_unit": clock_durations,
+    }
     return detail, problems
 
 
