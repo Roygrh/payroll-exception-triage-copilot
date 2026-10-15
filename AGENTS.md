@@ -21,6 +21,7 @@ Supporting constraints:
 - The LLM has no write path (ADR-009). Only code executes actions, and only after the human checkpoint.
 - The author's private inputs are gitignored and are never referenced from a committed file except `.gitignore`. Nothing from them is copied into the repository: no names, phone numbers, compensation figures or brand names.
 - Any new third-party service or dependency requires an ADR before use.
+- **State-changing commands are reported and kept to the task.** A command that changes state outside the source files (database writes, migrations, seeds, corpus ingestion, model or package downloads, container start or stop) is run only when the task requires it. Every final report lists each such command that was run and what it changed, or says that none was run.
 - When a shell command must contain prose about git (for example writing documentation through a heredoc), prefer the file-writing tool over the shell. The guard hook reads shell commands only and fails closed on anything that looks like a git invocation.
 
 ## 2. Authority hierarchy
@@ -71,7 +72,7 @@ An iteration is done when all its steps are done, its demo-script steps (if any)
 3. If the plan changed, append a dated entry to the "Plan changes" section at the end of `docs/planning/current-plan.md` and edit the affected steps in place. Never edit `docs/planning/initial-plan.md`.
 4. If a decision was taken, add the ADR and index it in `docs/decisions/README.md`; set superseded ADRs to `Superseded by ADR-NNN`.
 5. Update `docs/evidence/assumptions.md` when an assumption was confirmed, refuted or added (tag it with its origin).
-6. Leave the working tree for the author to inspect and commit. Report what changed, what was validated and what remains open.
+6. Leave the working tree for the author to inspect and commit. Report what changed, what was validated and what remains open, and list every state-changing command run (section 1, supporting constraints) with what it changed, or "none".
 
 ## 6. Subagents
 

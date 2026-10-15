@@ -153,11 +153,11 @@ stateDiagram-v2
     detect: detect (code)<br/>engine findings + facts + policy action + priority; case row created
     retrieve: retrieve (code)<br/>hybrid search recorded; passages sent = the finding's own sections + the case's deal memo
     explain_propose: explain_propose (LLM, one call)<br/>explanation + proposal, stored as two suggestions
-    validate: validate (code)<br/>per part: citation keys sent, exist, version in force, the case's deal memo;<br/>no bracketed pseudo-reference; no number outside facts and passages; proposal equals policy
+    validate: validate (code)<br/>per part: citation keys sent, exist, version in force, the case's deal memo;<br/>no bracketed pseudo-reference; no number outside facts and passages;<br/>a number with minutes or hours equals a fact or a sent passage with that unit;<br/>an HH:MM time is an event of the case; proposal equals policy
     needs_human_review: needs_human_review (code)<br/>facts only; reason recorded; nothing templated
     human_checkpoint: human_checkpoint (interrupt 1)<br/>resume with action and actor
     draft: draft (LLM)<br/>message for the action the human chose
-    validate_draft: validate_draft (code)<br/>citations, pseudo-references, stray numbers, for_action, recipient;<br/>failure marks the case needs_human_review, no draft shown
+    validate_draft: validate_draft (code)<br/>citations, pseudo-references, stray numbers, units, clock times, for_action, recipient;<br/>failure marks the case needs_human_review, no draft shown
     message_checkpoint: message_checkpoint (interrupt 2)<br/>confirmed message from the chooser, or cancel
     execute: execute (code, human identity)<br/>approve / return / escalate in one transaction, guarded to run once
     audit: audit (code, append-only)
@@ -187,7 +187,7 @@ Node contracts:
 | --- | --- | --- | --- | --- |
 | detect | code | timecard, deal memo, parameters, clock | findings (rule id, section, facts, policy row), policy action, amount, priority score | exception stops the run; case not created |
 | retrieve | code | findings, deal memo id | ranked chunks (recorded) and the keys of the passages sent to the model (the finding's own sections and the deal memo) | no passage to send routes to needs_human_review |
-| explain_propose | LLM | case context, findings with facts, fact meanings (once per rule), sent passages, policy table and policy action | explanation with citation keys and proposal (action, justification, requested correction), stored as two suggestions with one audit entry | error, timeout or schema mismatch routes to needs_human_review |
+| explain_propose | LLM | case context (timecard events as HH:MM times of day), findings with facts, fact meanings and units (once per rule), sent passages, policy table and policy action | explanation with citation keys and proposal (action, justification, requested correction), stored as two suggestions with one audit entry | error, timeout or schema mismatch routes to needs_human_review |
 | validate | code | both parts, corpus, version in force, facts, sent keys | per-part validation detail; suggestions marked valid or invalid | any problem routes to needs_human_review |
 | needs_human_review | code | reason | case status `needs_human_review`, review audit entry | n/a |
 | human_checkpoint | human | case, suggestions or review reason | action and actor; status at the checkpoint recorded; `decision` audit entry (stage `action_chosen`) for return and escalate | run stays interrupted until resumed |
@@ -196,6 +196,15 @@ Node contracts:
 | message_checkpoint | human | the validated draft or none | confirmed message (chooser only) or cancel (any actor, audited as `message_cancelled`, round cleared) | run stays interrupted until resumed |
 | execute | code | decision with the confirmed message, findings | timecard status, premium lines, return message or escalation; case status; the `decision` (stage `executed`) and `execution` audit entries, all in one transaction | transaction rolls back; a case no longer open writes nothing (already executed) |
 | audit | code | execution result | collects the audit ids written by execute; writes `decision` (stage `duplicate_attempt`) when execute found the case already executed | failure fails the run |
+
+Number checks in validate and validate_draft (ADR-008; the meaning check from P1.I2b.S8):
+
+- **Presence (stray numbers):** every number in an output must appear in the facts, the case context shown to the model or the passages cited plus the finding's own sections. Clock times are removed before numbers are extracted, so a time such as 12:00 never makes a bare 12 count as present.
+- **Meaning (units):** a number written with a duration unit ("24 minutes", "0.5 hour", "30-minute"; also min, mins, hr, hrs and h) must equal a fact of that unit (each duration fact declares `hours` or `minutes` in `engine/facts.py`) or appear with the same unit in a passage that was sent. The reason names the number and the unit, for example `'12.0 minutes'`.
+- **Meaning (clock times):** a time written as HH:MM must be a timecard event (call, meal out, meal in, wrap) of a day with findings. The prompts show these events only as HH:MM times of day (`calc.clock_time`; a wrap past midnight is marked "next day"), never as decimal hours, so a time of day cannot be copied as a duration.
+- **Meaning (durations):** a clock time written with a duration unit ("12:00 minutes") is always rejected.
+
+The presence check alone passed "the meal out at 12.0 minutes after Call" in the author's run of 2026-10-14 because 12.0 was in the case data; the meaning check rejects it. Any failure marks that output invalid and routes the case to needs_human_review.
 
 Rule (constraint 7, ADR-009, ADR-018): there is no path that produces explanation, proposal or message text without the LLM. The needs_human_review path shows facts and a reason, nothing templated as if it were an explanation; when the draft fails the human writes the message. Every action passes interrupt 1; return and escalate also pass interrupt 2 before execute.
 
@@ -266,7 +275,7 @@ The LLM appears after interrupt 1 only to draft the message for the human's acti
 | Retrieve passages | yes (hybrid search) | no |
 | Explain the finding with citations | no | yes |
 | Draft the return message or escalation note, for the action the human chose | no | yes (after the human decision; confirmed or edited by the human) |
-| Validate citations against corpus, version and the passages sent; detect stray numbers and bracketed pseudo-references | yes | no |
+| Validate citations against corpus, version and the passages sent; detect stray numbers, numbers whose unit matches no fact, unknown clock times and bracketed pseudo-references | yes | no |
 | Execute approve, return, escalate | yes, after the human checkpoint, under the human's identity | never |
 | Write the audit log | yes | never |
 | Judge quality in evals (ADR-003, tier 2) | no | yes, with a rubric |
@@ -286,7 +295,11 @@ Case statuses: `detected`, `awaiting_decision`, `needs_human_review`, `approved`
 
 ## 8. Hybrid retrieval (ADR-017)
 
-Query text per finding is built by code from the rule title and section plus a few fixed terms for the finding kind. Two searches run over `corpus_chunks`: cosine distance on the pgvector column (`<=>`) and `ts_rank_cd` over the generated tsvector with `to_tsquery('english', ...)` built from the query's words joined by OR, so passages containing more of the words rank higher. Each returns its top k; the lists are fused with reciprocal rank fusion (score = sum over lists of 1 / (60 + rank)); ties break by citation key. The rule's own sections and the case's deal memo chunk are added by key. All ranked results are recorded in the graph state and shown in the case detail with a `sent_to_model` flag; only the finding's own sections and the deal memo are sent to the model (ADR-018), and a citation of a passage that was not sent is invalid. Citation keys: `CGMA-2026.1-<section>` for agreement sections, `DM-NN` for deal memos.
+Query text per finding is built by code from the rule title and section plus a few fixed terms for the finding kind. Two searches run over `corpus_chunks`: cosine distance on the pgvector column (`<=>`) and `ts_rank_cd` over the generated tsvector with `to_tsquery('english', ...)` built from the query's words joined by OR, so passages containing more of the words rank higher. Each returns its top k; the lists are fused with reciprocal rank fusion (score = sum over lists of 1 / (60 + rank)); ties break by citation key. The rule's own sections and the case's deal memo chunk are added by key. All ranked results are recorded in the graph state and shown in the case detail with a `sent_to_model` flag; only the finding's own sections and the deal memo are sent to the model (ADR-018), and a citation of a passage that was not sent is invalid.
+
+**What the hybrid search decides, by phase.** Since ADR-018 the passages the model reads are chosen by code, not by the ranking: the finding's own sections (the `citation_keys` the engine attaches to each finding) and the case's deal memo. In Phase 1 the hybrid search runs and its ranked results are recorded and shown, so retrieval quality stays measurable (ADR-017), but it does not decide what the model reads. It becomes decisive in Phase 2 for Rules Q&A, where a free-text question has no finding to name its sections and the ranked passages are what the model receives.
+
+Citation keys: `CGMA-2026.1-<section>` for agreement sections, `DM-NN` for deal memos.
 
 ## 9. Cross-cutting
 
