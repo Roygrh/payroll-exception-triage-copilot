@@ -16,10 +16,11 @@
 - Iteration 002b (2026-10-14), S6 and S8 (`iterations/iteration-002b.md`):
   - **S6 (author, real LLM):** passed. SC-03 approve in one call, 2,317 tokens per case; SC-05 return in two calls, 4,732 tokens per case; the message confirmation made no LLM call. Both are within the 5,000 target. The offline estimate held within about 1 percent of the input tokens reported by the provider (A-27 confirmed).
   - **S8:** the same run showed a meaning error that the checks of that time passed: "the meal out at 12.0 minutes after Call", where 12.0 was the clock time of meal out. Prompts now show timecard times as HH:MM times of day, and each fact declares its unit. Validation now rejects three things: a number written with minutes or hours that matches no fact or sent passage of that unit, an HH:MM time that is not an event of the case, and a clock time written as a duration. A clock time also no longer makes a bare number count as present. Validators: test-engineer PASS, code-reviewer FAIL then PASS, grounding-evaluator PASS, hitl-workflow-validator GATE PASS. 217 tests pass with the database tests excluded (7 more need the database). Offline estimate after S8: SC-03 2,029 input tokens per case, SC-05 3,982.
+  - **S8 re-run (author, real LLM):** passed. SC-05 return used 4,741 tokens per case (4,068 input, 673 output, 2 calls); every check list was empty, times appeared only as HH:MM, the "12.0 minutes" error did not recur, and the confirmation returned the timecard with no LLM call. The offline input estimate was about 2 percent low (A-27). One quality finding goes to the Iteration 3 tier 2 rubric: the correction asked the crew member to change accurate times to meet the 30-minute minimum, instead of confirming or correcting them to the actual times.
+  - **Iteration 2b is closed** (2026-10-14).
 
 **Next**
-- **The author re-runs SC-05 on the S8 code** (exact commands and pass criteria in `iterations/iteration-002b.md`, "S8: re-run of SC-05 (author)"). It needs the compose database up, `uv run ptc seed --reset`, then `ptc showcase --scenario SC-05 --decision return` and `ptc confirm-message --case CASE-EMP-1002-20260314 --accept-draft`. If it passes, Iteration 2b is done.
-- Then **Iteration 4 (UI)** on the two-step decision flow (decide, then confirm the message), then 3, 5, 6 (`docs/planning/roadmap.md`). The UI should show timecard times as HH:MM, as the prompts now do.
+- **Iteration 4 (UI), starting with P1.I4.S1**, on the two-step decision flow (decide, then confirm the message); then 3, 5, 6 (`docs/planning/roadmap.md`). It needs the API as it runs today. The UI should show timecard times as HH:MM, as the prompts do.
 
 **Open decisions**
 - OD-01: queue priority weights (implemented as proposed in the YAML `queue` block). Owner: author. Confirm or change the YAML; no ADR unless the formula changes.
@@ -30,7 +31,7 @@
 
 ## Phase and iteration
 
-Phase 1, Iteration 2b. S1 to S8 are done and validated. S6 passed in the author's run of 2026-10-14. S8, the fix for the meaning error found in that run, is validated offline. The iteration closes after the author re-runs SC-05 on the S8 code. Execution order from 2026-10-09: 2b, 4 (UI), 3 (evaluations), 5 (remaining rules), 6 (one command, tracing, rehearsal). Iteration numbers are unchanged. Demo strategy: a recorded video and a live online session. The repository stays runnable with a free provider key.
+Phase 1. Iteration 2b is closed (2026-10-14): S1 to S8 are done and validated, S6 passed in the author's run, and S8 was confirmed with the real model in the author's SC-05 re-run. Next is Iteration 4 (UI). Execution order from 2026-10-09: 2b, 4 (UI), 3 (evaluations), 5 (remaining rules), 6 (one command, tracing, rehearsal). Iteration numbers are unchanged. Demo strategy: a recorded video and a live online session. The repository stays runnable with a free provider key.
 
 ## What runs today
 
@@ -74,8 +75,8 @@ API (demo steps 1 to 3):
 
 ## Known gaps
 
-- The S8 code is validated with the fake adapter only. The real model has not yet run on it; that is the author's SC-05 re-run.
 - The meaning check covers numbers written with minutes or hours (also min, mins, hr, hrs) and HH:MM times. It does not cover number words ("thirty minutes", "half an hour"). It also does not check which fact a number describes: "the meal lasted 6.0 hours" passes on SC-05 because 6.0 hours is the deadline. Both are carried to the Iteration 3 tier 2 rubric.
+- Code checks cannot see a correction that asks the crew member to change accurate times to meet the minimum (seen in the SC-05 re-run; no number is wrong). It is carried to the Iteration 3 tier 2 rubric.
 - The 7 database integration tests were not re-run in the S8 session, to avoid database writes. They do not touch the changed code.
 - Only MEAL_PERIOD is wired in the engine (`engine/rules.py`); the oracle and the manifest already cover all six rules (Iteration 5).
 - No evaluation harness or gate (Iteration 3), no UI (Iteration 4), no tracing (Iteration 6). The API container is defined in compose, but the one-command start with seed is Iteration 6.
@@ -86,7 +87,7 @@ API (demo steps 1 to 3):
 
 ## Risks
 
-- **Free-tier token budget:** the live limits are 1,000 requests per day and 8,000 tokens per minute. S6 measured 2,317 tokens per case for SC-03 and 4,732 for SC-05. S8 adds about 70 input tokens to a return case (offline estimate 3,982, was 3,910), so SC-05 should land near 4,800, about 200 under the target. Longer model outputs could push a return case past 5,000.
-- **Model quality:** a 20-billion-parameter open model must keep every number verbatim and cite only the given keys, now with stricter checks (unbracketed keys, the draft citing the governing section, units and clock times since S8). The S8 checks are new for the model and are deliberately strict: a time written in a.m./p.m. form, for example, routes to review. Failures route to human review, so the SC-05 re-run or the Iteration 3 gate may show review cases that need prompt tuning. Switching models is configuration (ADR-016) but re-baselines the gate.
+- **Free-tier token budget:** the live limits are 1,000 requests per day and 8,000 tokens per minute. S6 measured 2,317 tokens per case for SC-03 and 4,732 for SC-05. The SC-05 re-run on the S8 code used 4,741 tokens per case, about 260 under the target. Longer model outputs could push a return case past 5,000.
+- **Model quality:** a 20-billion-parameter open model must keep every number verbatim and cite only the given keys, now with stricter checks (unbracketed keys, the draft citing the governing section, units and clock times since S8). The S8 checks are new for the model and are deliberately strict: a time written in a.m./p.m. form, for example, routes to review. Failures route to human review, so the Iteration 3 gate may show review cases that need prompt tuning (the SC-05 re-run passed every check). Switching models is configuration (ADR-016) but re-baselines the gate.
 - **Two-step decision in the UI:** the decide request for return and escalate waits for one LLM call (seconds to tens of seconds on the free tier). Iteration 4 must show progress and handle a repeated request, which the service already supports.
 - **Schedule:** four iterations remain after 2b (4, 3, 5, 6), and the selection window may be short.

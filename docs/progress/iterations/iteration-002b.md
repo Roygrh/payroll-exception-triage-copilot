@@ -1,8 +1,9 @@
 # Iteration 002b: Fixes from the first real run and token efficiency
 
-Dates: 2026-10-10; 2026-10-14 (S6 recorded, S8)
+Dates: 2026-10-10; 2026-10-14 (S6 recorded, S8, S8 re-run)
+Status: closed on 2026-10-14. S8 was confirmed with the real model in the author's SC-05 re-run (4,741 tokens per case).
 Phase: 1
-Scope: Phase 1, Iteration 2b as defined in `docs/planning/current-plan.md` (steps P1.I2b.S1 to S8). S1 to S5 and S7 were built on 2026-10-10. S6, the acceptance with the real LLM, was run by the author on 2026-10-14 (results under "S6: acceptance run (author)"). S8 was built on 2026-10-14 to fix the meaning error that run found. No agent made a real LLM call: every test uses the fake adapter, and the token estimates are offline (ADR-019).
+Scope: Phase 1, Iteration 2b as defined in `docs/planning/current-plan.md` (steps P1.I2b.S1 to S8). S1 to S5 and S7 were built on 2026-10-10. S6, the acceptance with the real LLM, was run by the author on 2026-10-14 (results under "S6: acceptance run (author)"). S8 was built on 2026-10-14 to fix the meaning error that run found, and the author re-ran SC-05 on the S8 code the same day (results under "S8: re-run of SC-05 (author)"). No agent made a real LLM call: every test uses the fake adapter, and the token estimates are offline (ADR-019).
 
 ## Summary
 
@@ -15,6 +16,9 @@ The four problems found in the first real run (`iteration-002.md`, "Showcase run
 - **S5:** `case_status_before` in the decision audit entry is the status at the checkpoint.
 - **S6 (2026-10-14, author):** the real-LLM acceptance passed: SC-03 used 2,317 tokens per case and SC-05 4,732. The run also exposed a meaning error, "12.0 minutes" for the clock time of meal out.
 - **S8 (2026-10-14):** prompts show timecard times as HH:MM, and validation checks what a number means, not only that it is present: units, clock times, and clock times written as durations.
+- **S8 re-run (2026-10-14, author):** SC-05 return passed on the real model with 4,741 tokens per case. Every check list was empty, times appeared only as HH:MM and the "12.0 minutes" error did not recur. One quality finding (the correction asks the crew member to change accurate times to meet the minimum) is carried to the Iteration 3 tier 2 rubric.
+
+Iteration 2b is closed. The next iteration is 4 (UI).
 
 The suite grew from 175 to 210 tests. `ptc check` is green, and the hook suite (86 cases) passes. The hitl-workflow-validator reviewed the design PRE twice before the graph was coded (FAIL, then PASS).
 
@@ -36,7 +40,7 @@ The suite grew from 175 to 210 tests. `ptc check` is green, and the hook suite (
 | P1.I2b.S4 | `graph/prompts.py` (`ExplainProposeOutput`, `passages_for_model`, compact one-line JSON, passages as plain text, fact meanings once per rule, schema titles removed), merged `explain_propose` node with a doubled output cap, `tokens.py` and `ptc showcase --dry-run` (ADR-019), token totals per case in the showcase, before and after estimates below | Offline estimate: SC-03 approve 9,613 to 1,993 input tokens per case; SC-05 return 10,071 to 3,910. Every validation applies to each part of the merged output (`test_each_check_applies_to_the_proposal_part`, explanation tests); the dry run builds the same request as the node (`test_dry_run_builds_the_same_request_as_the_node`). The real tokens per case (at most 5,000) are measured by the author in S6 | test-engineer PASS, code-reviewer, grounding-evaluator PASS |
 | P1.I2b.S5 | `human_checkpoint` records `status_at_checkpoint`; the `executed` entry uses it | `case_status_before` is `needs_human_review` after a review-path decision and `awaiting_decision` otherwise (`test_llm_failure_routes_to_needs_human_review_with_no_generated_text`, `test_resume_with_edited_message_...`, `test_draft_failure_...`) | test-engineer PASS, code-reviewer |
 | P1.I2b.S6 | author's real-LLM run on 2026-10-14, recorded under "S6: acceptance run (author)" | SC-03 approve: approved, 2,317 tokens per case; SC-05 return: valid draft for the return, 4,732 tokens per case; confirmation returned the timecard with no LLM call; both within 5,000. The meaning error found in this run is fixed in S8 | author; the S8 validators below reviewed the code the run exposed |
-| P1.I2b.S8 | `calc.clock_time`; `engine/facts.py` (units, `fact_units`); `graph/prompts.py` (`times_of_day` in HH:MM, units in the fact names, prompt rule, version `2026-10-14.1`); `graph/nodes.py` (`unit_mismatches`, `unknown_clock_times`, `clock_times_with_unit`, clock times removed from the presence check); tests; `overview.md` | The S6 sentence and its HH:MM form are rejected in the explanation, the proposal and the draft; the required correct uses pass; the stray-number check still works (`test_iteration_2b.py`, S8 section; `test_calc.py`); 217 tests pass with `test_db.py` excluded; `ptc check` green; dry run SC-03 2,029, SC-05 3,982 | test-engineer PASS, code-reviewer FAIL then PASS, grounding-evaluator PASS, hitl-workflow-validator GATE PASS |
+| P1.I2b.S8 | `calc.clock_time`; `engine/facts.py` (units, `fact_units`); `graph/prompts.py` (`times_of_day` in HH:MM, units in the fact names, prompt rule, version `2026-10-14.1`); `graph/nodes.py` (`unit_mismatches`, `unknown_clock_times`, `clock_times_with_unit`, clock times removed from the presence check); tests; `overview.md` | The S6 sentence and its HH:MM form are rejected in the explanation, the proposal and the draft; the required correct uses pass; the stray-number check still works (`test_iteration_2b.py`, S8 section; `test_calc.py`); 217 tests pass with `test_db.py` excluded; `ptc check` green; dry run SC-03 2,029, SC-05 3,982. Confirmed with the real model in the author's SC-05 re-run of 2026-10-14: all checks passed, 4,741 tokens per case | test-engineer PASS, code-reviewer FAIL then PASS, grounding-evaluator PASS, hitl-workflow-validator GATE PASS; author re-run PASS |
 | P1.I2b.S7 | this file, `current-state.md`, `current-plan.md` (plan changes entry), `roadmap.md`, ADR-018 status, ADR-019 and its index row, `assumptions.md` (A-25 updated, A-27 added) | Procedure in AGENTS.md section 5 | author |
 
 ## Token measurement (S4)
@@ -78,7 +82,7 @@ Results:
 | `confirm-message --accept-draft` | PASS | Status returned, timecard Rejected, `message_source: draft_confirmed`; no LLM call. |
 
 - **Tokens:** the target of at most 5,000 per case is met for both cases. The offline estimate held: SC-03 1,993 estimated against 1,970 reported, SC-05 3,910 against 3,945 (A-27 confirmed).
-- **Meaning error found by the author:** in SC-05 both the explanation and the confirmed draft said "the meal out at 12.0 minutes after Call". 12.0 is the clock time of meal out (12:00 in decimal hours); hours to meal was 5.0. The stray-number check passed it because 12.0 is in the case data: that check tests whether a number is present, not what it means. Fixed in S8 (below). The author re-runs SC-05 on the S8 code (commands under "S8: re-run of SC-05 (author)").
+- **Meaning error found by the author:** in SC-05 both the explanation and the confirmed draft said "the meal out at 12.0 minutes after Call". 12.0 is the clock time of meal out (12:00 in decimal hours); hours to meal was 5.0. The stray-number check passed it because 12.0 is in the case data: that check tests whether a number is present, not what it means. Fixed in S8 (below). The author re-ran SC-05 on the S8 code and the error did not recur ("S8: re-run of SC-05 (author)").
 
 ## S8: unit and clock-time meaning check
 
@@ -117,21 +121,37 @@ Step P1.I2b.S8, added on 2026-10-14 (plan changes entry of that date). No LLM ca
 
 ## S8: re-run of SC-05 (author)
 
-Run from `backend/` with the free key in the root `.env`. No dependency, migration or corpus changed in S8, so `uv sync`, `ptc migrate` and `ptc ingest-corpus` are not needed.
+Result: **PASS**. Run by the author on 2026-10-14 from `backend/`, with the free key in the root `.env`, on the S8 code. No dependency, migration or corpus changed in S8, so `uv sync`, `ptc migrate` and `ptc ingest-corpus` were not needed.
 
-1. `docker compose -f ../deployment/docker-compose.yml up -d db` (no-op if it is already running)
-2. `uv run ptc seed --reset` (database reset: erases the cases, suggestions, decisions, audit log and checkpoints of the S6 run, and reloads 10 deal memos and 22 timecards, so SC-05 starts clean)
-3. `uv run ptc showcase --scenario SC-05 --decision return`
-4. Read the printed draft, then run `uv run ptc confirm-message --case CASE-EMP-1002-20260314 --accept-draft`
+Commands run:
 
-**Pass:**
+1. `uv run ptc seed --reset` (database reset: erased the cases, suggestions, decisions, audit log and checkpoints of the S6 run, and reloaded 10 deal memos and 22 timecards, so SC-05 started clean)
+2. `uv run ptc showcase --scenario SC-05 --decision return`
+3. `uv run ptc confirm-message --case CASE-EMP-1002-20260314 --accept-draft`
+
+Results:
+
+| Item | Result | Detail |
+| --- | --- | --- |
+| `explain_propose` call | PASS | Input 2,018, output 459, total 2,477; 1 attempt |
+| `draft` call | PASS | Input 2,050, output 214, total 2,264; 1 attempt |
+| Tokens per case | PASS | `TOKENS PER CASE (SC-05): 4,741` (input 4,068, output 673, 2 calls); within the 5,000 target |
+| Validation | PASS | Explanation, proposal and draft valid. Every check list empty: `stray_numbers`, `unit_mismatches`, `unknown_clock_times`, `clock_times_with_unit`, `pseudo_references`, `required_missing`. `proposal_matches_policy: true`. No `needs_human_review` |
+| Meaning | PASS | Times written only as HH:MM (07:00, 12:00, 12:24). Numbers with units only 24 minutes, 30 minutes, 5.0 hours and 6.0 hours (also as "24-minute" and "6.0-hour"). The S6 error ("12.0 minutes") did not recur. The explanation now reads: a call at 07:00 and a meal out at 12:00, giving 5.0 hours to the meal |
+| Draft | PASS | `for_action: return`, recipient employee, cites CGMA-2026.1-8.2, states the payroll cut-off date 2026-03-17 |
+| `confirm-message --accept-draft` | PASS | Status `returned`, timecard Rejected, `message_source: draft_confirmed`, no LLM call. Audit entries 5 (`decision`, stage `executed`) and 6 (`execution`) |
+| Offline estimate | holds | 3,982 input tokens estimated before the run, 4,068 reported (about 2 percent higher; A-27) |
+
+Quality finding (no wrong number, so no code check fails; carried to the Iteration 3 tier 2 rubric, no code change now): the proposal's `requested_correction` said "If the times are correct, extend the meal duration to at least 30 minutes", and the draft said "adjust them so the break is at least 30 minutes". Both ask the crew member to change accurate time records to meet the minimum. See "Validator findings carried forward".
+
+The pass criteria set before the run were:
 - In the explanation, the proposal and the draft, every number written with "minutes" or "hours" is a fact with that unit: 24 minutes (meal), 30 minutes (minimum), 5.0 hours (to meal), 6.0 hours (deadline), or 0 minutes and 0.0 hours late.
 - Timecard times, if written at all, appear as HH:MM (07:00, 12:00, 12:24, 15:30).
 - The outputs are marked `(LLM, valid)` and no "needs human review" block appears. The block `draft for the return (LLM, valid)` shows `for_action: return` and cites section 8.2. The run stops at `message_checkpoint`.
 - `TOKENS PER CASE (SC-05): N` shows N at most 5,000.
 - `confirm-message` ends with status `returned` and `message_source: draft_confirmed`.
 
-If the case ends in `needs_human_review` with an S8 reason (a unit, clock time or duration problem), the check did its job but the model needs prompt tuning: record the reason and the text here. Then run `ptc seed --reset` again before any retry.
+All of them were met.
 
 ## Validator findings and fixes applied
 
@@ -186,6 +206,10 @@ No LLM call and no database write: pytest ran with `tests/test_db.py` excluded, 
 
 ## Validator findings carried forward
 
+- **S8 re-run, quality finding, to the Iteration 3 tier 2 rubric (author, 2026-10-14):**
+  - On SC-05 the proposal's `requested_correction` said "If the times are correct, extend the meal duration to at least 30 minutes", and the draft said "adjust them so the break is at least 30 minutes". Both ask the crew member to change accurate time records to meet the minimum.
+  - Rubric criterion to add: for a short meal, the return message and the requested correction must ask to confirm the recorded times or correct them to the actual times; they must never ask to change accurate times to meet the minimum.
+  - Code checks cannot detect this, because no number is wrong. In Iteration 3, if the baseline shows it again, decide whether to add a prompt instruction. No code change now.
 - **S8, to the Iteration 3 tier 2 rubric:**
   - Number words ("thirty minutes", "half an hour") are not checked.
   - Each quantity must be attributed to the right fact and event: "the meal lasted 6.0 hours" passes the unit check on SC-05.
@@ -212,12 +236,14 @@ No LLM call and no database write: pytest ran with `tests/test_db.py` excluded, 
 | LLM calls per case | approve 1 (was 3); return or escalate 2 (was 3) |
 | Estimated input tokens per case (offline) | SC-03 approve 1,993 (was 9,613), 2,029 after S8; SC-05 return 3,910 (was 10,071), 3,982 after S8 |
 | Reported tokens per case (S6, provider) | SC-03 approve 2,317 (1,970 input, 347 output); SC-05 return 4,732 (3,945 input, 787 output) |
+| Reported tokens per case (S8 re-run, provider) | SC-05 return 4,741 (4,068 input, 673 output; `explain_propose` 2,477, `draft` 2,264); estimate 3,982 input, about 2 percent under the reported input |
+| S8 checks on the real model (SC-05 re-run) | all passed: no stray number, unit mismatch, unknown clock time, clock time with a unit, pseudo-reference or missing required key; proposal equals the policy |
 | Passages sent per MEAL_PERIOD case | 4 (was 7 or 8) |
-| Real LLM calls by agents | 0 (S6 calls were made by the author) |
+| Real LLM calls by agents | 0 (S6 and S8 re-run calls were made by the author) |
 | Hygiene scans | em dashes, backspace bytes, AI attribution: none in changed files; non-ASCII none; the author runs the brand term scan |
 
 ## Open decisions raised or still open
 
 - OD-09: closed on 2026-10-14 (S6 passed).
-- No new decision. The author re-runs SC-05 on the S8 code ("S8: re-run of SC-05 (author)").
+- No new decision. The S8 re-run passed, and Iteration 2b is closed. Whether to add a prompt instruction for the quality finding is decided in Iteration 3, after the baseline.
 - OD-01, OD-02, OD-04, OD-10: unchanged (see `current-state.md`).

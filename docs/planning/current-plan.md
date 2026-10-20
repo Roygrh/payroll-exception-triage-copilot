@@ -68,6 +68,8 @@ Status (2026-10-10): S1 to S5 and S7 done and validated (see `iteration-002b.md`
 
 Status (2026-10-14): S6 passed in the author's run (SC-03 approve 2,317 tokens per case, SC-05 return 4,732; both within 5,000). The author found a meaning error in that run ("12.0 minutes" for the clock time of meal out), added as S8, which is done and validated (offline estimate after S8: SC-03 2,025, SC-05 3,974 input tokens per case). The iteration closes after the author re-runs SC-05 on the S8 code (commands in `iteration-002b.md`, "S8: re-run of SC-05 (author)").
 
+Status (2026-10-14, S8 re-run): Iteration 2b closed. S8 confirmed with the real model in the author's SC-05 re-run: every check passed, no meaning error, 4,741 tokens per case (within 5,000). Next is Iteration 4 (UI).
+
 ### Execution order of Phase 1 (from 2026-10-09)
 
 Iteration numbers are kept; the execution order is: **2b, 4 (UI), 3 (evaluations), 5 (remaining rules), 6 (one command, tracing, rehearsal).** Why: the demo will be shown as a recorded video and in a live online session, and the selection window may be short, so demo-visible work comes first. A UI on top of the corrected MEAL_PERIOD slice is enough to record demo steps 1 to 3; the evaluation gate (step 5) and the conflict case (step 4) follow. The repository stays runnable with a free provider key throughout (ADR-016).
