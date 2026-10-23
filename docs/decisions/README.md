@@ -12,7 +12,7 @@ MADR style: context, decision, consequences, status. New decisions get the next 
 | [ADR-006](ADR-006-private-sources-folder.md) | Sources naming real organizations stay in the gitignored private folder | Accepted | 2026-10-07 |
 | [ADR-007](ADR-007-rule-parameters-yaml-single-source.md) | Rule parameters YAML is the single source of truth | Accepted | 2026-10-07 |
 | [ADR-008](ADR-008-llm-never-computes.md) | The LLM never computes | Accepted | 2026-10-07 |
-| [ADR-009](ADR-009-action-policy-owned-by-code.md) | Action policy owned by code | Accepted | 2026-10-07 |
+| [ADR-009](ADR-009-action-policy-owned-by-code.md) | Action policy owned by code | Accepted; review display refined by ADR-021 | 2026-10-07 |
 | [ADR-010](ADR-010-overtime-is-not-an-exception.md) | Normal overtime is calculated, never an exception | Accepted | 2026-10-07 |
 | [ADR-011](ADR-011-defer-permission-and-effective-date-filters.md) | Permission-filtered retrieval and effective-date filter deferred to Phase 2 | Accepted | 2026-10-07 |
 | [ADR-012](ADR-012-repository-as-system-of-record.md) | The repository is the durable system of record | Accepted | 2026-10-07 |
@@ -23,6 +23,8 @@ MADR style: context, decision, consequences, status. New decisions get the next 
 | [ADR-017](ADR-017-local-embeddings-and-hybrid-retrieval.md) | Local open-source embeddings (bge-small-en-v1.5 via fastembed) and hybrid retrieval with reciprocal rank fusion | Accepted | 2026-10-08 |
 | [ADR-018](ADR-018-draft-after-decision-and-token-efficiency.md) | Draft the message after the human decision; merge explain and propose; limit the passages sent to the model | Accepted (2026-10-10) | 2026-10-09 |
 | [ADR-019](ADR-019-offline-token-estimation-tiktoken.md) | Offline token estimation with tiktoken (o200k_base) for the dry run | Accepted | 2026-10-10 |
+| [ADR-020](ADR-020-frontend-styling-and-test-tooling.md) | Frontend styling and test tooling: Tailwind CSS, Vitest with React Testing Library, bundled fonts | Accepted | 2026-10-20 |
+| [ADR-021](ADR-021-review-state-shows-facts-only.md) | The needs-human-review state shows facts, the policy action and the reason only | Accepted | 2026-10-21 |
 
 Template for new records:
 

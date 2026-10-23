@@ -2,7 +2,7 @@
 
 A one-page view of the plan for day-to-day use. It takes no decisions: the contract for every step (objective, artifact, acceptance condition, validation) is in [`current-plan.md`](current-plan.md), and where the two differ, the plan wins.
 
-Execution order of Phase 1 (from 2026-10-09): **2b, 4, 3, 5, 6**. The UI comes before the evaluations so that a demo can be recorded early; the demo will be shown as a recorded video and in a live online session. Status as of 2026-10-14 (after the SC-05 re-run).
+Execution order of Phase 1 (from 2026-10-09): **2b, 4, 3, 5, 6**. The UI comes before the evaluations so that a demo can be recorded early; the demo will be shown as a recorded video and in a live online session. Status as of 2026-10-22 (after Iteration 4).
 
 All `ptc` commands run from `backend/` with uv; the database must be up (`docker compose -f deployment/docker-compose.yml up -d db` from the repository root) and the free provider key must be in the root `.env`.
 
@@ -39,14 +39,15 @@ All `ptc` commands run from `backend/` with uv; the database must be up (`docker
 - **Status:** S6 passed on 2026-10-14 (SC-03 2,317 tokens per case, SC-05 4,732). The same run showed "12.0 minutes" for the clock time of meal out; S8 fixes it; the author's SC-05 re-run on the S8 code passed every check with 4,741 tokens per case. Closed on 2026-10-14.
 - **Verify:** `uv run pytest`; `uv run ptc check`; the SC-05 re-run in `docs/progress/iterations/iteration-002b.md`, "S8: re-run of SC-05 (author)": no number with "minutes" or "hours" that is not a fact of that unit, times written as HH:MM, a valid draft and at most 5,000 tokens per case.
 
-### [Iteration 4: UI](current-plan.md#iteration-4-ui): next
+### [Iteration 4: UI](current-plan.md#iteration-4-ui): built (author walk-through pending)
 
 - **Goal:** the approver works the queue in a browser.
-- **Delivers:** queue page, case detail with clickable citations, decision buttons, message editing, audit panel.
+- **Delivers:** queue page, case detail with clickable citations, decision buttons, message confirmation, executed view with the audit trail (ADR-020, ADR-021).
 - **Demo value:** demo steps 1 to 3 on screen; enough to record the first video.
-- **Verify:** start the API and the frontend (commands recorded in `iteration-004.md`); ingest the week, open the top case, click a citation (the passage at section 8.2 opens), choose Return, edit and confirm the message, see the audit panel.
+- **Status:** built and validated with mocked data on 2026-10-22 (35 frontend tests; validators PASS after fixes). The walk-through with the real model is the author's.
+- **Verify:** `uv run ptc serve` in `backend/` and `npm run dev` in `frontend/`, open `http://localhost:5173` (steps in `current-state.md`, "See the UI with real data"); ingest the week, open the top case, click a citation (the passage at section 8.2 opens), choose Return, edit and confirm the message, see the audit trail.
 
-### [Iteration 3: evaluation harness and two-tier gate](current-plan.md#iteration-3-evaluation-harness-and-two-tier-gate): pending (after 4)
+### [Iteration 3: evaluation harness and two-tier gate](current-plan.md#iteration-3-evaluation-harness-and-two-tier-gate): next
 
 - **Goal:** measure the model against known answers before any version ships.
 - **Delivers:** a harness over the manifest, deterministic checks, an LLM judge, a gate command and a deliberately broken variant.

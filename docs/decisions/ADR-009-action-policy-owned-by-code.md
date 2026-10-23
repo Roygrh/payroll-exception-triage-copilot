@@ -21,7 +21,7 @@ Policy (evaluated per finding, then combined):
 
 Combination: several findings on one timecard produce the most severe action, with the order escalate > return > approve.
 
-Reconciliation: the propose node receives the findings, the facts, the retrieved passages and the policy action. The LLM returns a proposed action, a justification and, for returns, the specific correction requested. The validator compares the proposed action with the policy action. Equal: the case proceeds to the human checkpoint with the proposal shown. Different: the case is routed to "needs human review" with both actions visible and the justification shown as unvalidated. Code never overwrites the proposal silently, and the proposal never changes the policy action.
+Reconciliation: the propose node receives the findings, the facts, the retrieved passages and the policy action. The LLM returns a proposed action, a justification and, for returns, the specific correction requested. The validator compares the proposed action with the policy action. Equal: the case proceeds to the human checkpoint with the proposal shown. Different: the case is routed to "needs human review" with both actions visible and the justification shown as unvalidated (refined by ADR-021 on 2026-10-21: in the review state the UI shows the facts, the policy action and the review reason, which names both actions, and no justification text). Code never overwrites the proposal silently, and the proposal never changes the policy action.
 
 Execution: only the human's decision is executed, under the human's identity, by code. The LLM has no write path.
 

@@ -27,7 +27,7 @@ flowchart LR
 ```mermaid
 flowchart TB
     subgraph browser["Approver's browser"]
-        ui["Queue UI<br/>React + TypeScript + Vite (ADR-013, Iteration 4)"]
+        ui["Approver UI (frontend/)<br/>React + TypeScript + Vite, Tailwind CSS (ADR-013, ADR-020)<br/>queue, case detail, confirm message, audit trail"]
     end
 
     subgraph compose["Docker compose (deployment/docker-compose.yml)"]
@@ -39,12 +39,14 @@ flowchart TB
     model["Local embedding model<br/>bge-small-en-v1.5 via fastembed (ADR-017),<br/>downloaded on first run"]
     tracing["Langfuse Cloud (US), Iteration 6"]
 
-    ui -->|"HTTPS JSON"| api
+    ui -->|"JSON over HTTP (dev: Vite proxy /api to 127.0.0.1:8000)"| api
     api -->|"SQL, vector and full-text search, checkpoints"| db
     api -->|"HTTPS chat completions, structured output"| llm
     api -->|"in-process"| model
     api -.->|"OTel"| tracing
 ```
+
+The approver UI (Iteration 4) has four hash routes: the queue (`#/`), the case detail (`#/cases/{id}`), the message confirmation (`#/cases/{id}/message`) and the executed view with the audit trail (`#/cases/{id}/audit`). It has no state of its own beyond the screen: every value comes from the API, and its only requests that change state are `POST /ingest` (runs the graph up to the human checkpoint) and `POST /cases/{id}/decide` and `POST /cases/{id}/message` (the two human checkpoints), the last two carrying the approver's self-asserted actor (OD-10). It shows LLM text only when that output validated and the case is not in `needs_human_review`; a draft that needs review is not shown and the message body starts empty. The read-only display fields it needs (`GET /context`; on `GET /queue` the employee id, occupation and rule titles; on `GET /cases/{id}` the finding days as HH:MM times, the fact units, the rule titles and the occupation title) are added by `api/app.py` without changing existing fields.
 
 Container responsibilities:
 
@@ -60,7 +62,7 @@ Container responsibilities:
 ```mermaid
 flowchart TB
     subgraph api_c["api/app.py (FastAPI)"]
-        endpoints["Endpoints: POST /ingest, GET /queue, GET /cases/{id},<br/>POST /cases/{id}/decide, POST /cases/{id}/message,<br/>GET /cases/{id}/audit, GET /passages/{key}"]
+        endpoints["Endpoints: GET /context, POST /ingest, GET /queue, GET /cases/{id},<br/>POST /cases/{id}/decide, POST /cases/{id}/message,<br/>GET /cases/{id}/audit, GET /passages/{key}"]
     end
     runtime["runtime.py<br/>wires settings, pools, checkpointer, adapter, retriever, graph"]
     service["graph/service.py: TriageService<br/>run_timecard, ingest_week, decide, confirm_message, case_detail"]

@@ -12,9 +12,13 @@ from typing import Any, Literal
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
-from payroll_triage.graph.execute import MAX_MESSAGE_LENGTH, DecisionError
+from payroll_triage.calc import clock_time
+from payroll_triage.data.scenarios import load_catalog
+from payroll_triage.engine.facts import fact_units
+from payroll_triage.graph.execute import MAX_MESSAGE_LENGTH, RECIPIENTS, DecisionError
 from payroll_triage.graph.service import CaseNotFound, CaseNotWaiting, TriageService
 from payroll_triage.runtime import Runtime, build_runtime
+from payroll_triage.timecards import TIME_FIELDS, Timecard
 
 
 class DecisionBody(BaseModel):
@@ -59,10 +63,66 @@ def _service() -> TriageService:
     return runtime.service
 
 
+def _rule_titles(service: TriageService, findings: list[dict[str, Any]]) -> dict[str, str]:
+    rules = service.deps.params.rules
+    return {f["rule_id"]: rules[f["rule_id"]].title for f in findings if f["rule_id"] in rules}
+
+
+def _occupation_title(service: TriageService, deal_memo_id: str) -> str | None:
+    memo = service.store.get_deal_memo(deal_memo_id)
+    return memo.occupation_title if memo else None
+
+
+def _clock_or_none(hours: float | None) -> str | None:
+    return None if hours is None else clock_time(hours)
+
+
+def _finding_days(tc: Timecard | None, findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The timecard events of each finding's day as HH:MM times of day (`calc.clock_time`), as
+    the prompts show them (P1.I2b.S8); the UI never formats decimal hours itself."""
+    days = {d.date.isoformat(): d for d in tc.days} if tc else {}
+    out = []
+    for f in findings:
+        day = days.get(f.get("day_date") or "")
+        if day is None:
+            continue
+        out.append(
+            {
+                "rule_id": f["rule_id"],
+                "day_date": f["day_date"],
+                "weekday": day.weekday,
+                "events": [
+                    {"field": name, "time": _clock_or_none(getattr(day, name))}
+                    for name in TIME_FIELDS
+                ],
+            }
+        )
+    return out
+
+
 @app.get("/health")
 def health() -> dict[str, Any]:
     runtime: Runtime = app.state.runtime
     return {"status": "ok", "settings": runtime.settings.redacted()}
+
+
+@app.get("/context")
+def context() -> dict[str, Any]:
+    """Read-only header context for the approver UI (Iteration 4): the demo week, the next
+    payroll run, the agreement in force, the demo approver, the allowed message recipients and
+    the message length limit."""
+    service = _service()
+    catalog = load_catalog()
+    agreement = service.deps.params.agreement
+    return {
+        "week_ending": catalog.demo_week_ending.isoformat(),
+        "as_of_date": service.deps.clock.as_of.isoformat(),
+        "payroll_run_date": service.deps.clock.payroll_run_date.isoformat(),
+        "agreement": {"code": agreement.code, "name": agreement.name, "version": agreement.version},
+        "demo_approver": catalog.demo_approver,
+        "recipients": {action: list(roles) for action, roles in RECIPIENTS.items()},
+        "max_message_length": MAX_MESSAGE_LENGTH,
+    }
 
 
 @app.post("/ingest")
@@ -83,6 +143,11 @@ def queue() -> dict[str, Any]:
                 "employee_name": tc.employee_name if tc else None,
                 "department": tc.department if tc else None,
                 "rule_ids": sorted({f["rule_id"] for f in case.findings}),
+                # Added in Iteration 4 (optional, read-only).
+                "employee_id": tc.employee_id if tc else None,
+                "occupation_code": tc.occupation_code if tc else None,
+                "occupation_title": _occupation_title(service, case.deal_memo_id),
+                "rule_titles": _rule_titles(service, case.findings),
             }
         )
     return {"count": len(cases), "cases": cases}
@@ -90,10 +155,19 @@ def queue() -> dict[str, Any]:
 
 @app.get("/cases/{case_id}")
 def case_detail(case_id: str) -> dict[str, Any]:
+    service = _service()
     try:
-        return _service().case_detail(case_id)
+        detail = service.case_detail(case_id)
     except CaseNotFound as exc:
         raise HTTPException(status_code=404, detail=f"case {case_id} not found") from exc
+    findings = detail["case"]["findings"]
+    tc = service.store.get_timecard(detail["case"]["timecard_id"])
+    # Added in Iteration 4 (optional, read-only): display data the approver UI needs.
+    detail["finding_days"] = _finding_days(tc, findings)
+    detail["fact_units"] = {f["rule_id"]: fact_units(f["rule_id"]) for f in findings}
+    detail["rule_titles"] = _rule_titles(service, findings)
+    detail["occupation_title"] = _occupation_title(service, detail["case"]["deal_memo_id"])
+    return detail
 
 
 def _resume(case_id: str, call) -> dict[str, Any]:

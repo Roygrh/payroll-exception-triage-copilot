@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+/* Design tokens of the approved Iteration 4 design. Text pairs meet at least 4.5:1. */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-ink: #15181e;
+  --color-page: #f5f6f8;
+  --color-line: #e2e5ea;
+  --color-text: #1b1f27;
+  --color-muted: #4b5363;
+  --color-header-muted: #c9ced6;
+  --color-primary: #1f4fbf;
+  --color-primary-hover: #183f99;
+
+  --color-return-bg: #fdf1de;
+  --color-return-fg: #7a4204;
+  --color-approve-bg: #e3f4e8;
+  --color-approve-fg: #11612f;
+  --color-escalate-bg: #fbeaea;
+  --color-escalate-fg: #a61b1b;
+  --color-neutral-bg: #eef1f5;
+  --color-neutral-fg: #3a4150;
+  --color-llm-bg: #eceafb;
+  --color-llm-fg: #3b2fa0;
+
+  --radius-card: 10px;
+}
+
+html,
+body {
+  background: var(--color-page);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* The primary blue is below 3:1 on the dark header; use white there. */
+header :focus-visible {
+  outline-color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin {
+    animation: none;
+  }
+}

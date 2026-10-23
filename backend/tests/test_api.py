@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 import pytest
 from fastapi.testclient import TestClient
 from langgraph.checkpoint.memory import InMemorySaver
@@ -12,6 +14,7 @@ from payroll_triage.corpus.render import render_agreement
 from payroll_triage.data.generator import load_generated_timecards
 from payroll_triage.db.seed import all_deal_memos
 from payroll_triage.graph.build import build_graph
+from payroll_triage.graph.execute import MAX_MESSAGE_LENGTH
 from payroll_triage.graph.nodes import Deps
 from payroll_triage.graph.service import TriageService
 from payroll_triage.params import load_parameters
@@ -131,3 +134,56 @@ def test_demo_steps_one_to_three_over_the_api(client):
     )
     assert client.get("/queue").json()["count"] == 1
     assert client.get("/cases/CASE-NOPE").status_code == 404
+
+
+def test_ui_read_fields_are_additive(client):
+    """Iteration 4: the approver UI reads a context endpoint and optional display fields; the
+    existing fields stay as they were."""
+    context = client.get("/context").json()
+    assert context["week_ending"] == "2026-03-14"
+    assert context["payroll_run_date"] == "2026-03-17"
+    assert context["agreement"]["version"] == "2026.1"
+    assert context["demo_approver"] == "sam.verhoeven"
+    assert context["recipients"] == {
+        "return": ["employee", "department_head"],
+        "escalate": ["payroll_specialist"],
+    }
+    assert context["max_message_length"] == MAX_MESSAGE_LENGTH
+
+    client.post("/ingest", json={"week_ending": "2026-03-14"})
+    top = client.get("/queue").json()["cases"][0]
+    assert top["employee_id"] == "EMP-1002" and top["occupation_code"] == "4125"
+    assert top["occupation_title"] and top["rule_titles"] == {
+        "MEAL_PERIOD": "Timing and duration of the first meal period"
+    }
+    assert top["rule_ids"] == ["MEAL_PERIOD"] and top["employee_name"] == "Jordan Okafor"
+
+    detail = client.get(f"/cases/{top['id']}").json()
+    assert detail["occupation_title"] == top["occupation_title"]
+    assert detail["fact_units"]["MEAL_PERIOD"]["meal_minutes"] == "minutes"
+    assert detail["fact_units"]["MEAL_PERIOD"]["deadline_hours"] == "hours"
+    (day,) = detail["finding_days"]
+    assert day["day_date"] == top["findings"][0]["day_date"] and day["weekday"] == "Wed"
+    # HH:MM times of day, never decimal hours (12.4 is 12:24)
+    assert [(e["field"], e["time"]) for e in day["events"]] == [
+        ("call", "07:00"),
+        ("meal_out", "12:00"),
+        ("meal_in", "12:24"),
+        ("wrap", "15:30"),
+    ]
+    assert detail["timecard"]["days"][2]["meal_in"] == 12.4  # the existing field is unchanged
+    assert {"case", "chunks", "llm_calls", "output_status"} <= detail.keys()
+
+
+def test_finding_days_marks_next_day_and_missing_events():
+    from payroll_triage.api.app import _finding_days
+
+    tc = next(t for t in load_generated_timecards() if t.scenario_id == "SC-05")
+    late = replace(tc.days[0], wrap=26.5, meal_in=None)
+    tc = replace(tc, days=(late, *tc.days[1:]))
+    findings = [{"rule_id": "MEAL_PERIOD", "day_date": late.date.isoformat()}]
+    (day,) = _finding_days(tc, findings)
+    times = {e["field"]: e["time"] for e in day["events"]}
+    assert times["wrap"] == "02:30 next day" and times["meal_in"] is None
+    assert _finding_days(tc, [{"rule_id": "X", "day_date": None}]) == []
+    assert _finding_days(None, findings) == []
